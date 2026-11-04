@@ -1,4 +1,4 @@
-// Página "Tem pão?" (RF02, RF03, RF04, RNF04, RN11)
+// pagina tem pao (RF02 RF03 RF04 RNF04 RN11)
 (function () {
   const $ = (id) => document.getElementById(id);
   const cfg = window.VR_CONFIG || {};

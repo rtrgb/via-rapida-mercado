@@ -1,10 +1,10 @@
--- Via Rápida Mercado: banco de dados (Supabase / PostgreSQL)
--- Rode este arquivo inteiro no SQL Editor do Supabase.
--- RFxx/RNxx/RNFxx: ver o documento de Análise de Requisitos.
+-- banco do via rapida (supabase)
+-- rodar tudo no sql editor
+-- os RF/RN/RNF sao do doc de requisitos
 
 create extension if not exists pgcrypto;
 
--- Produto vendido em fornadas (RNF11)
+-- produto (RNF11)
 create table if not exists produto (
   id                  smallint generated always as identity primary key,
   nome                text not null,
@@ -12,7 +12,7 @@ create table if not exists produto (
   proxima_fornada     time,
   limite_alerta       int  not null default 10,  -- RN09
   horas_desatualizado int  not null default 2,   -- RN11
-  atualizado_em       timestamptz not null default now(), -- última ação da loja
+  atualizado_em       timestamptz not null default now(), -- ultima acao da loja
   versao              bigint not null default 0  -- tempo real
 );
 
@@ -34,7 +34,7 @@ create table if not exists reserva (
   id           bigint generated always as identity primary key,
   codigo       text not null unique,
   produto_id   smallint not null references produto(id),
-  fornada_id   bigint references fornada(id),          -- nulo = reservada para a próxima fornada
+  fornada_id   bigint references fornada(id),          -- null = proxima fornada
   nome         text not null check (char_length(nome) between 1 and 80),
   contato      text not null check (char_length(contato) between 3 and 120),
   quantidade   int  not null check (quantidade between 1 and 10), -- RN06
@@ -49,8 +49,8 @@ create table if not exists inscrito (
   produto_id     smallint not null references produto(id),
   nome           text not null check (char_length(nome) between 1 and 80),
   email          text not null check (email ~* '^[^@\s]+@[^@\s]+\.[^@\s]+$'),
-  consentimento  boolean not null check (consentimento), -- RNF08 / LGPD
-  token          uuid not null default gen_random_uuid() unique, -- link de cancelamento (RF06)
+  consentimento  boolean not null check (consentimento), -- RNF08 lgpd
+  token          uuid not null default gen_random_uuid() unique, -- pro link de cancelar (RF06)
   criado_em      timestamptz not null default now(),
   unique (produto_id, email)
 );
@@ -59,11 +59,9 @@ create index if not exists fornada_produto_idx on fornada (produto_id, criada_em
 create index if not exists venda_fornada_idx   on venda (fornada_id);
 create index if not exists reserva_fornada_idx on reserva (fornada_id, status);
 
--- =========================================================
--- Gatilhos
--- =========================================================
+-- GATILHOS
 
--- Nova fornada: marca "tem pão" e liga as reservas pendentes.
+-- fornada nova -> tem pao + liga as reservas pendentes
 create or replace function on_fornada_insert() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
@@ -78,7 +76,7 @@ drop trigger if exists fornada_insert on fornada;
 create trigger fornada_insert after insert on fornada
   for each row execute function on_fornada_insert();
 
--- Venda registrada: atualiza a hora e, se zerou o balcão, marca "acabou" (RN03).
+-- venda: se zerar o balcao marca acabou (RN03)
 create or replace function on_venda_insert() returns trigger
 language plpgsql security definer set search_path = public as $$
 declare v_produto smallint;
@@ -91,7 +89,7 @@ begin
   return new;
 end $$;
 
--- Reserva criada ou alterada: só avisa o tempo real.
+-- reserva so dispara o tempo real
 create or replace function on_reserva_change() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
@@ -99,10 +97,8 @@ begin
   return coalesce(new, old);
 end $$;
 
--- =========================================================
--- Cálculo do balcão (RN02)
--- balcão = fornada atual - vendas - reservas aguardando ou retiradas
--- =========================================================
+-- BALCAO (RN02)
+-- fornada - vendas - reservas (aguardando/retiradas)
 create or replace function calc_balcao(p_produto smallint)
 returns table (fornada_id bigint, no_balcao int)
 language sql stable security definer set search_path = public as $$
@@ -121,7 +117,7 @@ language sql stable security definer set search_path = public as $$
   select null, 0 where not exists (select 1 from f)
 $$;
 
--- Não deixa vender mais do que há no balcão.
+-- nao deixa vender mais q o balcao
 create or replace function on_venda_check() returns trigger
 language plpgsql security definer set search_path = public as $$
 declare v_produto smallint; v_atual bigint; v_balcao int;
@@ -149,7 +145,7 @@ drop trigger if exists reserva_change on reserva;
 create trigger reserva_change after insert or update on reserva
   for each row execute function on_reserva_change();
 
--- Reservas não retiradas em 60 min voltam para a venda (RN07)
+-- reserva q nao retirou em 60min volta pra venda (RN07)
 create or replace function expirar_reservas() returns void
 language sql security definer set search_path = public as $$
   update reserva r set status = 'expirada', atualizada_em = now()
@@ -158,11 +154,9 @@ language sql security definer set search_path = public as $$
      and f.criada_em < now() - interval '60 minutes';
 $$;
 
--- =========================================================
--- Funções públicas
--- =========================================================
+-- FUNCOES PUBLICAS
 
--- Situação para a página "Tem pão?" (RF02, RF03, RF04, RN11)
+-- pagina tem pao (RF02 RF03 RF04 RN11)
 create or replace function disponibilidade(p_produto smallint default 1)
 returns table (
   produto text, situacao text, no_balcao int, proxima_fornada time,
@@ -184,7 +178,7 @@ begin
    where p.id = p_produto;
 end $$;
 
--- Reserva (RF08, RF09, RN05, RN06)
+-- reserva (RF08 RF09 RN05 RN06)
 create or replace function criar_reserva(
   p_nome text, p_contato text, p_quantidade int,
   p_proxima boolean default false, p_produto smallint default 1
@@ -218,7 +212,7 @@ begin
   return v_codigo;
 end $$;
 
--- Inscrição para o aviso por e-mail (RF05)
+-- inscricao do aviso por email (RF05)
 create or replace function inscrever(
   p_nome text, p_email text, p_consentimento boolean, p_produto smallint default 1
 ) returns void
@@ -232,7 +226,7 @@ begin
   on conflict (produto_id, email) do update set nome = excluded.nome;
 end $$;
 
--- Cancelamento pelo link do e-mail (RF06, RN10: os dados são apagados)
+-- cancelar inscricao, apaga os dados (RF06 RN10)
 create or replace function cancelar_inscricao(p_token uuid) returns boolean
 language plpgsql security definer set search_path = public as $$
 begin
@@ -240,20 +234,18 @@ begin
   return found;
 end $$;
 
--- =========================================================
--- Permissões (RNF07)
--- =========================================================
+-- PERMISSOES (RNF07)
 alter table produto  enable row level security;
 alter table fornada  enable row level security;
 alter table venda    enable row level security;
 alter table reserva  enable row level security;
 alter table inscrito enable row level security;
 
--- Visitante: só lê o produto.
+-- visitante so le o produto
 drop policy if exists produto_leitura on produto;
 create policy produto_leitura on produto for select to anon, authenticated using (true);
 
--- Loja (com login): acesso total.
+-- loja logada pode tudo
 drop policy if exists produto_loja on produto;
 create policy produto_loja on produto for update to authenticated using (true) with check (true);
 drop policy if exists fornada_loja on fornada;
@@ -271,7 +263,7 @@ grant execute on function criar_reserva(text, text, int, boolean, smallint) to a
 grant execute on function inscrever(text, text, boolean, smallint) to anon, authenticated;
 grant execute on function cancelar_inscricao(uuid) to anon, authenticated;
 
--- Tempo real (RNF04)
+-- realtime (RNF04)
 do $$
 begin
   if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
@@ -281,9 +273,7 @@ begin
   end if;
 end $$;
 
--- =========================================================
--- Dados iniciais
--- =========================================================
+-- DADOS INICIAIS
 insert into produto (nome, proxima_fornada)
 select 'Pão francês', '07:30'
 where not exists (select 1 from produto);

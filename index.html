@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Via Rápida Mercado · Tem pão?</title>
+<meta name="description" content="Veja se tem pão francês agora na Via Rápida Mercado, em Balneário Camboriú.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-head"><div class="wrap"><a class="brand" href="./" aria-label="Via Rápida Mercado">via rápida<small>mercado</small></a></div></header>
+
+<main class="wrap">
+  <div style="display:grid;gap:4px"><span class="eyebrow">Fornada do dia</span><h1 id="produto" style="font-size:28px">Pão francês</h1></div>
+
+  <section class="status" aria-live="polite">
+    <span id="pill" class="pill carregando">Carregando…</span>
+    <dl class="figures">
+      <div><dt>No balcão</dt><dd><span id="balcao">–</span><small>pães</small></dd></div>
+      <div><dt>Próxima fornada</dt><dd id="proxima">–</dd></div>
+    </dl>
+    <p id="desatualizado" class="alerta" hidden>Situação não confirmada: a loja não atualiza há mais de 2 horas.</p>
+    <span id="atualizado" class="small"></span>
+  </section>
+  <p id="erro" class="erro" hidden></p>
+
+  <div class="row">
+    <a class="btn btn-primary" href="#" aria-disabled="true" title="Em construção">Me avise</a>
+    <a class="btn btn-ghost" href="#" aria-disabled="true" title="Em construção">Reservar</a>
+  </div>
+
+  <div class="list">
+    <div><span>Horário</span><span>Todo dia, 6h às 22h</span></div>
+    <div><span>Endereço</span><span>Rua 1400, 429<br><span class="small">Em frente à Paróquia Santa Inês</span></span></div>
+    <div><span>WhatsApp</span><span>(47) 98404-7570</span></div>
+  </div>
+  <a href="https://www.google.com/maps/search/?api=1&query=Rua+1400+429+Balne%C3%A1rio+Cambori%C3%BA" target="_blank" rel="noopener">Como chegar ›</a>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/disponibilidade.js"></script>
+</body>
+</html>

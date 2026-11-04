@@ -1,0 +1,54 @@
+:root {
+  color-scheme: light;
+  --blue: #1D4ED8; --blue-ink: #FFFFFF; --blue-soft: #EEF3FE; --blue-line: #D5E0FB;
+  --ink: #101828; --muted: #667085; --line: #E8EBF0; --bg: #F6F7F9; --white: #FFFFFF;
+  --ok: #12804A; --ok-soft: #E8F6EE; --off: #667085; --off-soft: #F0F2F5;
+  --warn: #9A5B00; --warn-soft: #FFF6E0;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--white); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+h1, h2 { font-family: var(--display); font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; margin: 0; }
+a { color: var(--blue); }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+.wrap { max-width: 440px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
+.site-head { border-bottom: 1px solid var(--line); }
+.site-head .wrap { display: flex; align-items: center; justify-content: space-between; padding-block: 16px; }
+.brand { display: inline-flex; align-items: baseline; gap: 6px; font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
+.brand::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--blue); transform: translateY(-1px) rotate(45deg); align-self: center; }
+.brand small { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--muted); }
+main.wrap { padding-block: 22px 40px; display: grid; gap: 18px; }
+.eyebrow { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.small { font-size: 13px; color: var(--muted); }
+
+.status { border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 14px; }
+.pill { display: inline-flex; align-items: center; gap: 7px; justify-self: start; border-radius: 999px; padding: 4px 11px 4px 9px; font-size: 13px; font-weight: 600; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pill.tem { background: var(--ok-soft); color: var(--ok); }
+.pill.tem::before { animation: pulse 2s infinite; box-shadow: 0 0 0 0 currentColor; }
+.pill.acabou, .pill.carregando { background: var(--off-soft); color: var(--off); }
+@keyframes pulse { 70% { box-shadow: 0 0 0 6px transparent; } }
+.figures { display: grid; grid-template-columns: 1fr 1fr; margin: 0; }
+.figures div { display: grid; gap: 2px; }
+.figures div + div { border-left: 1px solid var(--line); padding-left: 16px; }
+.figures dt { font-size: 13px; color: var(--muted); }
+.figures dd { margin: 0; font-family: var(--display); font-weight: 700; font-size: 34px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.figures dd small { font-family: var(--body); font-weight: 500; font-size: 14px; color: var(--muted); margin-left: 4px; }
+.alerta { background: var(--warn-soft); color: var(--warn); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+
+.row { display: flex; gap: 10px; }
+.row > * { flex: 1; }
+.btn { display: inline-flex; justify-content: center; align-items: center; height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid transparent; font: inherit; font-weight: 600; cursor: pointer; text-decoration: none; }
+.btn-primary { background: var(--blue); color: var(--blue-ink); }
+.btn-ghost { background: var(--white); color: var(--ink); border-color: var(--line); }
+.btn[aria-disabled="true"] { opacity: .5; pointer-events: none; }
+
+.list { display: grid; border-top: 1px solid var(--line); }
+.list div { display: flex; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.list > div > span:first-child { color: var(--muted); }
+.list > div > span:last-child { text-align: right; font-weight: 500; }
+.erro { background: #FEF3F2; color: #B42318; border-radius: 10px; padding: 12px; font-size: 14px; }

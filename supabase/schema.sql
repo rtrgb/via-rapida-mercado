@@ -1,14 +1,10 @@
 -- Via Rápida Mercado: banco de dados (Supabase / PostgreSQL)
 -- Rode este arquivo inteiro no SQL Editor do Supabase.
--- Regras de negócio citadas: ver o documento de Análise de Requisitos.
+-- RFxx/RNxx/RNFxx: ver o documento de Análise de Requisitos.
 
 create extension if not exists pgcrypto;
 
--- =========================================================
--- Tabelas
--- =========================================================
-
--- Produto vendido em fornadas. Hoje só o pão francês (RNF11: preparado para outros).
+-- Produto vendido em fornadas (RNF11)
 create table if not exists produto (
   id                  smallint generated always as identity primary key,
   nome                text not null,
@@ -17,7 +13,7 @@ create table if not exists produto (
   limite_alerta       int  not null default 10,  -- RN09
   horas_desatualizado int  not null default 2,   -- RN11
   atualizado_em       timestamptz not null default now(), -- última ação da loja
-  versao              bigint not null default 0  -- muda a cada alteração; usado pelo tempo real
+  versao              bigint not null default 0  -- tempo real
 );
 
 create table if not exists fornada (
@@ -64,10 +60,10 @@ create index if not exists venda_fornada_idx   on venda (fornada_id);
 create index if not exists reserva_fornada_idx on reserva (fornada_id, status);
 
 -- =========================================================
--- Gatilhos: mantêm a situação e a "versão" do produto
+-- Gatilhos
 -- =========================================================
 
--- Nova fornada: marca "tem pão" e liga a ela as reservas feitas para a próxima fornada.
+-- Nova fornada: marca "tem pão" e liga as reservas pendentes.
 create or replace function on_fornada_insert() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
@@ -95,7 +91,7 @@ begin
   return new;
 end $$;
 
--- Reserva criada ou alterada: só avisa o tempo real (não conta como atualização da loja).
+-- Reserva criada ou alterada: só avisa o tempo real.
 create or replace function on_reserva_change() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
@@ -153,7 +149,7 @@ drop trigger if exists reserva_change on reserva;
 create trigger reserva_change after insert or update on reserva
   for each row execute function on_reserva_change();
 
--- Reservas não retiradas em 60 minutos depois da fornada voltam para a venda (RN07).
+-- Reservas não retiradas em 60 min voltam para a venda (RN07)
 create or replace function expirar_reservas() returns void
 language sql security definer set search_path = public as $$
   update reserva r set status = 'expirada', atualizada_em = now()
@@ -163,7 +159,7 @@ language sql security definer set search_path = public as $$
 $$;
 
 -- =========================================================
--- Funções públicas (as únicas que o visitante sem login pode chamar)
+-- Funções públicas
 -- =========================================================
 
 -- Situação para a página "Tem pão?" (RF02, RF03, RF04, RN11)
@@ -188,7 +184,7 @@ begin
    where p.id = p_produto;
 end $$;
 
--- Reserva (RF08, RF09, RN05, RN06). Devolve o código para mostrar no caixa.
+-- Reserva (RF08, RF09, RN05, RN06)
 create or replace function criar_reserva(
   p_nome text, p_contato text, p_quantidade int,
   p_proxima boolean default false, p_produto smallint default 1
@@ -200,7 +196,6 @@ begin
   if p_quantidade is null or p_quantidade < 1 or p_quantidade > 10 then
     raise exception 'A reserva deve ter de 1 a 10 pães.';
   end if;
-  -- trava o produto para duas reservas simultâneas não passarem do estoque
   select situacao into v_situacao from produto where id = p_produto for update;
   if not found then raise exception 'Produto não encontrado.'; end if;
   perform expirar_reservas();
@@ -246,7 +241,7 @@ begin
 end $$;
 
 -- =========================================================
--- Permissões (RNF07): RLS em tudo; o público só usa as funções acima
+-- Permissões (RNF07)
 -- =========================================================
 alter table produto  enable row level security;
 alter table fornada  enable row level security;
@@ -254,11 +249,11 @@ alter table venda    enable row level security;
 alter table reserva  enable row level security;
 alter table inscrito enable row level security;
 
--- Visitante: só lê o produto (necessário para o tempo real).
+-- Visitante: só lê o produto.
 drop policy if exists produto_leitura on produto;
 create policy produto_leitura on produto for select to anon, authenticated using (true);
 
--- Loja (usuário com login: proprietária e funcionário do caixa): acesso total.
+-- Loja (com login): acesso total.
 drop policy if exists produto_loja on produto;
 create policy produto_loja on produto for update to authenticated using (true) with check (true);
 drop policy if exists fornada_loja on fornada;
@@ -276,7 +271,7 @@ grant execute on function criar_reserva(text, text, int, boolean, smallint) to a
 grant execute on function inscrever(text, text, boolean, smallint) to anon, authenticated;
 grant execute on function cancelar_inscricao(uuid) to anon, authenticated;
 
--- Tempo real: a página pública escuta mudanças na tabela produto (RNF04)
+-- Tempo real (RNF04)
 do $$
 begin
   if exists (select 1 from pg_publication where pubname = 'supabase_realtime')

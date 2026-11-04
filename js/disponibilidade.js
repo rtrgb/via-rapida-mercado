@@ -1,4 +1,4 @@
-// Página "Tem pão?": lê a situação no banco e se atualiza sozinha (RF02, RF03, RF04, RNF04, RN11).
+// Página "Tem pão?" (RF02, RF03, RF04, RNF04, RN11)
 (function () {
   const $ = (id) => document.getElementById(id);
   const cfg = window.VR_CONFIG || {};
@@ -37,11 +37,9 @@
   }
 
   carregar();
-  // Tempo real: qualquer mudança no produto (fornada, venda, reserva) recarrega a página.
   db.channel('produto')
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'produto' }, carregar)
     .subscribe();
-  // Rede de segurança: recarrega a cada minuto (expiração de reservas e aviso de desatualizado).
   setInterval(carregar, 60000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) carregar(); });
 })();

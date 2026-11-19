@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Via Rápida Mercado · Painel</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="loja">
+<div class="app">
+  <aside class="side">
+    <span class="brand">via rápida<small>painel</small></span>
+    <nav aria-label="Painel">
+      <a href="painel.html" aria-current="page">Painel</a>
+      <a href="reservas.html">Reservas do dia</a>
+      <button id="sair" type="button">Sair</button>
+    </nav>
+    <span id="quem" class="quem"></span>
+  </aside>
+  <main class="main">
+    <div class="main-head"><h2 id="produto">Pão francês</h2>
+      <div class="toggle" role="group" aria-label="Situação do pão">
+        <button class="t-on" id="ton" type="button" aria-pressed="false">Tem pão</button>
+        <button class="t-off" id="toff" type="button" aria-pressed="false">Acabou</button>
+      </div>
+    </div>
+    <p id="alerta" class="alerta" role="status" hidden></p>
+    <p id="erro" class="erro" role="alert" hidden></p>
+    <div class="card"><h3 id="fornada-titulo">Fornada atual</h3>
+      <dl class="stats">
+        <div><dt>Feitos</dt><dd id="feitos">–</dd></div>
+        <div><dt>Vendidos</dt><dd id="vendidos">–</dd></div>
+        <div><dt>Reservados</dt><dd id="reservados">–</dd></div>
+        <div class="hl"><dt>No balcão</dt><dd id="balcao">–</dd></div>
+      </dl>
+    </div>
+    <div class="grid3">
+      <div class="card"><h3>Registrar venda</h3>
+        <div class="chips" id="vendas">
+          <button type="button" data-n="1">−1</button><button type="button" data-n="2">−2</button><button type="button" data-n="5">−5</button><button type="button" data-n="10">−10</button>
+        </div>
+      </div>
+      <div class="card"><h3>Nova fornada</h3>
+        <form class="inline" id="f-fornada"><label for="qtd">Quantidade<input id="qtd" type="number" min="1" max="999" value="45"></label><button class="btn btn-primary" type="submit">Pronta</button></form>
+      </div>
+      <div class="card"><h3>Próxima fornada</h3>
+        <form class="inline" id="f-proxima"><label for="hora">Horário<input id="hora" type="time"></label><button class="btn btn-ghost" type="submit">Salvar</button></form>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="toast" class="toast" role="status" hidden></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/painel.js"></script>
+</body>
+</html>

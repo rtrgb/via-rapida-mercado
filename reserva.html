@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Via Rápida Mercado · Reservar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-head"><div class="wrap"><a class="brand" href="./" aria-label="Via Rápida Mercado">via rápida<small>mercado</small></a></div></header>
+<main class="wrap">
+  <a class="back" href="./">Voltar</a>
+  <h1 style="font-size:24px">Reservar</h1>
+  <form id="form" novalidate>
+    <fieldset class="seg"><legend>Fornada</legend>
+      <label for="agora"><input type="radio" name="fornada" id="agora" value="agora">Agora<small id="agora-info">carregando…</small></label>
+      <label for="proxima"><input type="radio" name="fornada" id="proxima" value="proxima">Próxima<small id="proxima-info">–</small></label>
+    </fieldset>
+    <div style="display:grid;gap:6px"><span style="font-weight:500;font-size:14px">Quantidade <span class="small">(máx. 10)</span></span>
+      <div class="stepper"><button type="button" id="menos" aria-label="Diminuir">−</button><output id="qtd">4</output><button type="button" id="mais" aria-label="Aumentar">+</button></div></div>
+    <label for="nome">Nome<input id="nome" type="text" autocomplete="name" maxlength="80" required></label>
+    <label for="contato">E-mail ou telefone<input id="contato" type="text" autocomplete="email" maxlength="120" required></label>
+    <p id="erro" class="erro" role="alert" hidden></p>
+    <button id="enviar" class="btn btn-primary btn-block" type="submit">Reservar</button>
+    <span class="small" style="text-align:center">Pague na retirada</span>
+  </form>
+  <section id="ok" hidden style="display:grid;gap:18px">
+    <div class="success"><strong id="ok-nome">Reservado</strong><span class="small">Mostre este código no caixa</span><span id="ok-codigo" class="code"></span></div>
+    <div class="list">
+      <div><span>Quantidade</span><span id="ok-qtd"></span></div>
+      <div><span>Fornada</span><span id="ok-fornada"></span></div>
+      <div><span>Prazo</span><span>Até 60 min após a fornada</span></div>
+    </div>
+    <a class="btn btn-ghost" href="./">Voltar</a>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/reserva.js"></script>
+</body>
+</html>

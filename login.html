@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Via Rápida Mercado · Entrar</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="loja">
+<main class="wrap login">
+  <span class="brand">via rápida<small>painel</small></span>
+  <h1 style="font-size:24px">Entrar</h1>
+  <form id="form" novalidate>
+    <label for="email">E-mail<input id="email" type="email" autocomplete="username" required></label>
+    <label for="senha">Senha<input id="senha" type="password" autocomplete="current-password" required></label>
+    <p id="erro" class="erro" role="alert" hidden></p>
+    <button id="entrar" class="btn btn-primary btn-block" type="submit">Entrar</button>
+  </form>
+  <a class="small" href="./">Ver a página dos clientes</a>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>

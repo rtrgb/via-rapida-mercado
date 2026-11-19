@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Via Rápida Mercado · Aviso por e-mail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-head"><div class="wrap"><a class="brand" href="./" aria-label="Via Rápida Mercado">via rápida<small>mercado</small></a></div></header>
+<main class="wrap">
+  <a class="back" href="./">Voltar</a>
+  <div style="display:grid;gap:4px"><h1 style="font-size:24px">Aviso por e-mail</h1><span class="small">Você recebe um e-mail quando sair pão.</span></div>
+  <form id="form" novalidate>
+    <label for="nome">Nome<input id="nome" type="text" autocomplete="given-name" maxlength="80" required></label>
+    <label for="email">E-mail<input id="email" type="email" autocomplete="email" maxlength="120" required></label>
+    <label class="check" for="aceite"><input id="aceite" type="checkbox" required>Aceito receber avisos por e-mail</label>
+    <p id="erro" class="erro" role="alert" hidden></p>
+    <button id="enviar" class="btn btn-primary btn-block" type="submit">Me avise</button>
+    <span class="small">Seu e-mail é usado só para estes avisos. Para sair, use o link no fim de qualquer aviso.</span>
+  </form>
+  <div id="ok" class="success" hidden><strong>Pronto!</strong><span class="small">Você vai receber um e-mail quando sair pão.</span></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/aviso.js"></script>
+</body>
+</html>

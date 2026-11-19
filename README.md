@@ -13,9 +13,19 @@ Projeto de extensão da disciplina de Programação Web, Univali, 2026. Autor: G
 
 ```
 index.html                  página pública "Tem pão?"
+aviso.html                  inscrição para o aviso por e-mail
+cancelar.html               cancelamento do aviso (link do e-mail)
+reserva.html                reserva e código de retirada
+login.html                  entrada da loja
+painel.html                 painel: situação, fornadas, vendas e próxima fornada
+reservas.html               reservas do dia
 css/style.css               estilos
 js/config.js                URL e chave pública do Supabase
+js/db.js                    conexão com o Supabase usada pelas páginas
 js/disponibilidade.js       leitura da situação e atualização em tempo real
+js/aviso.js, js/cancelar.js, js/reserva.js
+js/auth.js                  sessão da loja (protege o painel)
+js/login.js, js/painel.js, js/reservas.js
 supabase/schema.sql         script do banco: tabelas, regras, funções e permissões
 ```
 
@@ -26,6 +36,8 @@ supabase/schema.sql         script do banco: tabelas, regras, funções e permis
 3. Em **Authentication > Sign In / Providers**, desative o cadastro público ("Allow new users to sign up"). Só a loja terá contas, criadas em **Authentication > Users > Add user**.
 4. Em **Project Settings > API**, copie a **Project URL** e a chave **anon public** para `js/config.js`.
 5. Sirva a pasta com qualquer servidor estático, por exemplo `npx serve .` ou a extensão Live Server do VS Code, e abra `index.html`.
+
+Para entrar no painel (`login.html`), crie o usuário da loja em **Authentication > Users > Add user** (marque "Auto Confirm User").
 
 Para testar a página com pão disponível, insira uma fornada no **Table Editor** do Supabase (tabela `fornada`, `produto_id = 1`, `quantidade = 45`).
 
@@ -49,8 +61,10 @@ O front-end é publicado pelo GitHub Pages (Settings > Pages > Branch: `main`, p
 
 - [x] Banco de dados, regras de acesso e funções públicas
 - [x] Página pública "Tem pão?" com tempo real
-- [ ] Aviso por e-mail (inscrição, envio e cancelamento)
-- [ ] Reserva e confirmação
-- [ ] Login e painel do vendedor
-- [ ] Reservas do dia e relatórios
+- [x] Inscrição e cancelamento do aviso por e-mail
+- [ ] Envio do e-mail quando sai a fornada
+- [x] Reserva e confirmação
+- [x] Login e painel do vendedor
+- [x] Reservas do dia
+- [ ] Relatórios
 - [ ] QR Code

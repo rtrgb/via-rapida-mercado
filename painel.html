@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Via Rápida Mercado · Painel</title>
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/icone-180.png">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap">
@@ -38,17 +40,21 @@
         <div><dt>Reservados</dt><dd id="reservados">–</dd></div>
         <div class="hl"><dt>No balcão</dt><dd id="balcao">–</dd></div>
       </dl>
+      <p class="small">No balcão = feitos + sobra − vendidos − reservados. Quando chega a 0, o site mostra "Acabou" sozinho. Use "Tem pão" e "Acabou" no alto só para mudar na mão.</p>
     </div>
     <div class="grid3">
-      <div class="card"><h3>Registrar venda</h3>
+      <div class="card"><div class="head"><h3>Registrar venda</h3><p class="small">Toque a cada venda no balcão. Errou? Toque em "Desfazer" no aviso que aparece embaixo.</p></div>
         <div class="chips" id="vendas">
           <button type="button" data-n="1">−1</button><button type="button" data-n="2">−2</button><button type="button" data-n="5">−5</button><button type="button" data-n="10">−10</button>
         </div>
       </div>
-      <div class="card"><h3>Nova fornada</h3>
-        <form class="inline" id="f-fornada"><label for="qtd">Quantidade<input id="qtd" type="number" min="1" max="999" value="45"></label><button id="pronta" class="btn btn-primary" type="submit">Pronta</button></form>
+      <div class="card"><div class="head"><h3>Nova fornada</h3><p class="small">Quando sair pão do forno. O site passa a mostrar "tem pão" e avisa os inscritos por e-mail.</p></div>
+        <form id="f-fornada">
+          <div class="inline"><label for="qtd">Pães que saíram agora<input id="qtd" type="number" min="1" max="999" value="45"></label><button id="pronta" class="btn btn-primary" type="submit">Pronta</button></div>
+          <label class="check" for="somar" id="sobra-box" hidden><input id="somar" type="checkbox" checked><span id="sobra-txt"></span></label>
+        </form>
       </div>
-      <div class="card"><h3>Próxima fornada</h3>
+      <div class="card"><div class="head"><h3>Próxima fornada</h3><p class="small">Horário que os clientes veem no site.</p></div>
         <form class="inline" id="f-proxima"><label for="hora">Horário<input id="hora" type="time"></label><button class="btn btn-ghost" type="submit">Salvar</button></form>
       </div>
     </div>

@@ -21,7 +21,7 @@
     contato = c;
     try { localStorage.setItem('vr_contato', c); } catch (_) { /* sem armazenamento: tudo bem */ }
     $('lista').innerHTML = data.length ? data.map(cartao).join('')
-      : '<p class="vazio" style="padding:0">Nenhuma reserva encontrada para este contato.</p>';
+      : '<p class="small">Nenhuma reserva encontrada para este contato.</p>';
     return true;
   }
 

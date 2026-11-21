@@ -4,6 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Via Rápida Mercado · Reservar</title>
+<meta name="description" content="Veja se tem pão francês agora na Via Rápida Mercado, receba aviso quando sair fornada e reserve. Rua 1400, 429, Balneário Camboriú.">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/icone-180.png">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Via Rápida Mercado">
+<meta property="og:title" content="Reservar pão · Via Rápida Mercado">
+<meta property="og:description" content="Veja se tem pão francês agora na Via Rápida Mercado, receba aviso quando sair fornada e reserve. Rua 1400, 429, Balneário Camboriú.">
+<meta property="og:url" content="https://rtrgb.github.io/via-rapida-mercado/reserva.html">
+<meta property="og:image" content="https://rtrgb.github.io/via-rapida-mercado/img/compartilhar.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="css/style.css">
@@ -12,21 +25,21 @@
 <header class="site-head"><div class="wrap"><a class="brand" href="./" aria-label="Via Rápida Mercado">via rápida<small>mercado</small></a></div></header>
 <main class="wrap">
   <a class="back" href="./">Voltar</a>
-  <h1 style="font-size:24px">Reservar</h1>
+  <h1>Reservar</h1>
   <form id="form" novalidate>
     <fieldset class="seg"><legend>Fornada</legend>
       <label for="agora"><input type="radio" name="fornada" id="agora" value="agora">Agora<small id="agora-info">carregando…</small></label>
       <label for="proxima"><input type="radio" name="fornada" id="proxima" value="proxima">Próxima<small id="proxima-info">–</small></label>
     </fieldset>
-    <div style="display:grid;gap:6px"><span style="font-weight:500;font-size:14px">Quantidade <span class="small">(máx. 10)</span></span>
+    <div class="campo"><span class="rotulo">Quantidade <span class="small">(máx. 10)</span></span>
       <div class="stepper"><button type="button" id="menos" aria-label="Diminuir">−</button><output id="qtd">4</output><button type="button" id="mais" aria-label="Aumentar">+</button></div></div>
     <label for="nome">Nome<input id="nome" type="text" autocomplete="name" maxlength="80" required></label>
     <label for="contato">E-mail ou telefone<input id="contato" type="text" autocomplete="email" maxlength="120" required></label>
     <p id="erro" class="erro" role="alert" hidden></p>
     <button id="enviar" class="btn btn-primary btn-block" type="submit">Reservar</button>
-    <span class="small" style="text-align:center">Pague na retirada</span>
+    <span class="small centro">Pague na retirada</span>
   </form>
-  <section id="ok" hidden style="display:grid;gap:18px">
+  <section id="ok" class="pilha-lg" hidden>
     <div class="success"><strong id="ok-nome">Reservado</strong><span class="small">Mostre este código no caixa</span><span id="ok-codigo" class="code"></span></div>
     <div class="list">
       <div><span>Quantidade</span><span id="ok-qtd"></span></div>

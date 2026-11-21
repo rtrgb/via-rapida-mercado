@@ -18,6 +18,7 @@
   function render(d) {
     const tem = d.situacao === 'tem';
     $('produto').textContent = d.produto;
+    $('status').className = 'status ' + (tem ? 'tem' : 'acabou'); // quadro verde ou cinza
     $('pill').className = 'pill ' + (tem ? 'tem' : 'acabou');
     $('pill').textContent = tem ? 'Tem pão agora' : 'Acabou';
     $('balcao').textContent = d.no_balcao;

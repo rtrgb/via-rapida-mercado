@@ -59,6 +59,14 @@ create table if not exists inscrito (
 alter table produto add column if not exists disponivel_desde timestamptz;
 alter table produto add column if not exists avisado_em timestamptz;
 
+-- sobras da fornada anterior (RN02 e relatorios): separadas dos paes que sairam do forno
+-- sobra = entrou no balcao desta fornada; descarte = a loja escolheu nao vender
+alter table fornada add column if not exists sobra    int not null default 0;
+alter table fornada add column if not exists descarte int not null default 0;
+do $$ begin
+  alter table fornada add constraint fornada_sobra_ok check (sobra >= 0 and descarte >= 0);
+exception when duplicate_object then null; end $$;
+
 create index if not exists fornada_produto_idx on fornada (produto_id, criada_em desc);
 create index if not exists venda_fornada_idx   on venda (fornada_id);
 create index if not exists reserva_fornada_idx on reserva (fornada_id, status);
@@ -118,12 +126,12 @@ create trigger produto_update before update on produto
   for each row execute function on_produto_update();
 
 -- BALCAO (RN02)
--- fornada - vendas - reservas (aguardando/retiradas)
+-- fornada (feitos + sobra) - vendas - reservas (aguardando/retiradas)
 create or replace function calc_balcao(p_produto smallint)
 returns table (fornada_id bigint, no_balcao int)
 language sql stable security definer set search_path = public as $$
   with f as (
-    select id, quantidade from fornada
+    select id, quantidade + sobra as quantidade from fornada
      where produto_id = p_produto
      order by criada_em desc, id desc limit 1
   )
@@ -189,14 +197,15 @@ create or replace function on_fornada_check() returns trigger
 language plpgsql security definer set search_path = public as $$
 declare v_saiu int;
 begin
-  if new.produto_id <> old.produto_id or new.criada_em <> old.criada_em then
+  if new.produto_id <> old.produto_id or new.criada_em <> old.criada_em
+     or new.sobra <> old.sobra or new.descarte <> old.descarte then
     raise exception 'Só dá para corrigir a quantidade da fornada.';
   end if;
   select coalesce((select sum(quantidade) from venda where fornada_id = old.id), 0)
        + coalesce((select sum(quantidade) from reserva
                     where fornada_id = old.id and status in ('aguardando', 'retirada')), 0)
     into v_saiu;
-  if new.quantidade < v_saiu then
+  if new.quantidade + new.sobra < v_saiu then
     raise exception 'Já saíram % pães desta fornada (vendas e reservas). A quantidade não pode ser menor.', v_saiu;
   end if;
   return new;
@@ -389,6 +398,27 @@ end $$;
 
 -- FUNCOES DA LOJA
 
+-- nova fornada: guarda separado os paes que sairam e a sobra da anterior,
+-- que entra no balcao (p_somar_sobra) ou fica como descarte
+create or replace function nova_fornada(p_quantidade int, p_somar_sobra boolean default true, p_produto smallint default 1)
+returns table (fornada_id bigint, sobra int, descarte int)
+language plpgsql security definer set search_path = public as $$
+declare v_sobra int; v_id bigint; v_s int; v_d int;
+begin
+  if p_quantidade is null or p_quantidade < 1 or p_quantidade > 999 then
+    raise exception 'Informe quantos pães saíram (de 1 a 999).';
+  end if;
+  perform 1 from produto where id = p_produto for update; -- mesma trava das reservas
+  if not found then raise exception 'Produto não encontrado.'; end if;
+  perform expirar_reservas();
+  select greatest(coalesce(b.no_balcao, 0), 0) into v_sobra from calc_balcao(p_produto) b;
+  v_s := case when coalesce(p_somar_sobra, true) then v_sobra else 0 end;
+  v_d := v_sobra - v_s;
+  insert into fornada (produto_id, quantidade, sobra, descarte)
+  values (p_produto, p_quantidade, v_s, v_d) returning id into v_id;
+  return query select v_id, v_s, v_d;
+end $$;
+
 -- trava do aviso: libera 1 envio por vez que o pao fica disponivel,
 -- com no minimo 30 min entre envios (evita spam se ligar/desligar)
 create or replace function reivindicar_aviso(p_produto smallint default 1) returns boolean
@@ -456,6 +486,7 @@ grant execute on function minhas_reservas(text) to anon, authenticated;
 grant execute on function cancelar_reserva(text, text) to anon, authenticated;
 grant execute on function alterar_reserva(text, text, int) to anon, authenticated;
 grant execute on function relatorio_vendas(date, date) to authenticated;
+grant execute on function nova_fornada(int, boolean, smallint) to authenticated;
 revoke execute on function reivindicar_aviso(smallint) from authenticated;
 grant execute on function reivindicar_aviso(smallint) to service_role;
 grant execute on function disponibilidade(smallint) to service_role;

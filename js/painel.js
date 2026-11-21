@@ -16,7 +16,7 @@
     if (p.error) return erro(VR.msg(p.error));
     produto = p.data;
 
-    const f = await db.from('fornada').select('id, quantidade, criada_em')
+    const f = await db.from('fornada').select('id, quantidade, sobra, criada_em')
       .eq('produto_id', 1).order('criada_em', { ascending: false }).limit(1);
     fornada = f.data && f.data[0];
 
@@ -27,8 +27,8 @@
       vendidos = (v.data || []).reduce((s, x) => s + x.quantidade, 0);
       reservados = (r.data || []).reduce((s, x) => s + x.quantidade, 0);
     }
-    const feitos = fornada ? fornada.quantidade : 0;
-    balcao = Math.max(0, feitos - vendidos - reservados);
+    const feitos = fornada ? fornada.quantidade : 0, sobra = fornada ? fornada.sobra || 0 : 0;
+    balcao = Math.max(0, feitos + sobra - vendidos - reservados);
     const tem = produto.situacao === 'tem';
 
     erro('');
@@ -37,12 +37,13 @@
     $('toff').setAttribute('aria-pressed', !tem);
     $('fornada-titulo').textContent = fornada ? 'Fornada das ' + hhmm(fornada.criada_em) : 'Nenhuma fornada ainda';
     $('corrigir').hidden = !fornada;
-    $('feitos').textContent = feitos;
+    $('feitos').innerHTML = sobra ? `${feitos}<small>+${sobra} de sobra</small>` : feitos;
     $('vendidos').textContent = vendidos;
     $('reservados').textContent = reservados;
     $('balcao').textContent = balcao;
     if (produto.proxima_fornada && document.activeElement !== $('hora')) $('hora').value = produto.proxima_fornada.slice(0, 5);
     travarChips();
+    sobras();
 
     const acabando = tem && balcao > 0 && balcao <= produto.limite_alerta; // RF20, RN09
     $('alerta').hidden = !acabando;
@@ -92,22 +93,36 @@
     carregar();
   }
 
+  // nova fornada: o banco guarda separado os pães que saíram e a sobra da anterior,
+  // que entra no balcão se a caixa estiver marcada ou fica como descarte (nova_fornada)
+  function sobras() {
+    const q = parseInt($('qtd').value, 10) || 0;
+    $('sobra-box').hidden = !(fornada && balcao > 0);
+    $('sobra-txt').textContent = `Somar ${balcao === 1 ? 'o 1 pão que sobrou' : `os ${balcao} pães que sobraram`}`
+      + ($('somar').checked ? ` (balcão fica com ${q + balcao})` : '');
+  }
+  $('qtd').addEventListener('input', sobras);
+  $('somar').addEventListener('change', sobras);
+
   $('f-fornada').addEventListener('submit', async (e) => {
     e.preventDefault();
     const q = parseInt($('qtd').value, 10);
-    if (!(q > 0)) return toast('Informe a quantidade da fornada.');
+    if (!(q > 0)) return toast('Informe quantos pães saíram.');
     $('pronta').disabled = true;
-    const { error } = await db.from('fornada').insert({ produto_id: 1, quantidade: q });
+    const { data, error } = await db.rpc('nova_fornada', { p_quantidade: q, p_somar_sobra: $('somar').checked });
     $('pronta').disabled = false;
     if (error) return toast(VR.msg(error));
+    const { sobra: s, descarte: d } = data[0];
+    $('somar').checked = true;
     carregar();
-    toast(`Fornada de ${q} pronta.` + (await avisar()));
+    toast((s ? `Fornada pronta: ${q} novos + ${s} que sobraram = ${q + s} no balcão.`
+      : `Fornada de ${q} pronta.` + (d ? ` ${d} que sobraram ficaram fora.` : '')) + (await avisar()));
   });
 
   // corrigir quantidade digitada errada; o banco não deixa ficar menor do que já saiu
   $('corrigir').onclick = async () => {
     if (!fornada) return;
-    const r = prompt(`Quantidade certa da fornada das ${hhmm(fornada.criada_em)}:`, fornada.quantidade);
+    const r = prompt(`Quantos pães saíram na fornada das ${hhmm(fornada.criada_em)}? (sem contar a sobra)`, fornada.quantidade);
     if (r === null) return;
     const q = parseInt(r, 10);
     if (!(q > 0 && q <= 999)) return toast('Informe um número de 1 a 999.');

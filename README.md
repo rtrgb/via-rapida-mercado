@@ -24,6 +24,7 @@ reservas.html               reservas do dia
 relatorios.html             relatórios de vendas, gráficos, horários de pico e CSV
 qrcode.html                 cartaz com QR Code para imprimir
 css/style.css               estilos
+img/                        ícone e imagem da prévia do link (WhatsApp)
 js/config.js                URL e chave pública do Supabase
 js/db.js                    conexão com o Supabase usada pelas páginas
 js/disponibilidade.js       leitura da situação e atualização em tempo real
@@ -62,7 +63,7 @@ O front-end é publicado pelo GitHub Pages (Settings > Pages > Branch: `main`, p
 
 | Regra | Onde |
 | --- | --- |
-| Balcão = fornada atual - vendas - reservas ativas (RN02) | `calc_balcao` |
+| Balcão = fornada atual (feitos + sobra) - vendas - reservas ativas (RN02) | `calc_balcao` |
 | Acabou quando o balcão zera (RN03) | gatilho de `venda` |
 | Reserva só com estoque e de 1 a 10 pães (RN05, RN06) | `criar_reserva` |
 | Reserva expira 60 min após a fornada (RN07) | `expirar_reservas`; o prazo volta em `criar_reserva` |
@@ -71,6 +72,7 @@ O front-end é publicado pelo GitHub Pages (Settings > Pages > Branch: `main`, p
 | Não vender mais do que há no balcão | gatilho `venda_check` |
 | Desfazer venda: se tinha zerado o balcão, volta a ter pão | gatilho `venda_delete` |
 | Corrigir fornada: nunca menos do que já saiu | gatilhos `fornada_check` e `fornada_update` |
+| Nova fornada guarda separado os pães feitos e a sobra da anterior (somada ao balcão ou descartada) | `nova_fornada`, colunas `sobra` e `descarte` |
 | Cancelamento da inscrição apaga os dados (RN10) | `cancelar_inscricao` |
 | Um aviso por e-mail por vez que o pão fica disponível (RF07) | `reivindicar_aviso` |
 | Vendas = balcão + reservas retiradas, por dia e hora (RF16 a RF19) | `relatorio_vendas` |
@@ -88,4 +90,4 @@ O front-end é publicado pelo GitHub Pages (Settings > Pages > Branch: `main`, p
 - [x] QR Code
 - [x] Revisão antes da apresentação: desfazer venda, corrigir fornada, avisos do e-mail, login, painel no celular
 - [x] Minha reserva (cliente consulta, altera e cancela)
-- [ ] Ajustes visuais
+- [x] Ajustes visuais: quadro "Tem pão?" colorido, ícone, prévia do link, login, tabelas e espaçamentos

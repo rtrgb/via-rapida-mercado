@@ -4,6 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Via Rápida Mercado · Tem pão?</title>
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/icone-180.png">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:site_name" content="Via Rápida Mercado">
+<meta property="og:title" content="Tem pão? · Via Rápida Mercado">
+<meta property="og:description" content="Veja se tem pão francês agora na Via Rápida Mercado, receba aviso quando sair fornada e reserve. Rua 1400, 429, Balneário Camboriú.">
+<meta property="og:url" content="https://rtrgb.github.io/via-rapida-mercado/">
+<meta property="og:image" content="https://rtrgb.github.io/via-rapida-mercado/img/compartilhar.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="Veja se tem pão francês agora na Via Rápida Mercado, em Balneário Camboriú.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap">
@@ -13,9 +25,9 @@
 <header class="site-head"><div class="wrap"><a class="brand" href="./" aria-label="Via Rápida Mercado">via rápida<small>mercado</small></a></div></header>
 
 <main class="wrap">
-  <div style="display:grid;gap:4px"><span class="eyebrow">Fornada do dia</span><h1 id="produto" style="font-size:28px">Pão francês</h1></div>
+  <div class="head"><span class="eyebrow">Fornada do dia</span><h1 id="produto" class="h-home">Pão francês</h1></div>
 
-  <section class="status" aria-live="polite">
+  <section id="status" class="status" aria-live="polite">
     <span id="pill" class="pill carregando">Carregando…</span>
     <dl class="figures">
       <div><dt>No balcão</dt><dd><span id="balcao">–</span><small>pães</small></dd></div>
@@ -30,7 +42,7 @@
     <a class="btn btn-primary" href="aviso.html">Me avise</a>
     <a class="btn btn-ghost" href="reserva.html">Reservar</a>
   </div>
-  <a class="small" href="minha-reserva.html" style="justify-self:center;margin-top:-6px">Já reservou? Ver minha reserva</a>
+  <a class="small link-centro" href="minha-reserva.html">Já reservou? Ver minha reserva</a>
 
   <div class="list">
     <div><span>Horário</span><span>Todo dia, 6h às 22h</span></div>
@@ -38,7 +50,7 @@
     <div><span>WhatsApp</span><a href="https://wa.me/5547984047570" target="_blank" rel="noopener">(47) 98404-7570</a></div>
   </div>
   <a href="https://www.google.com/maps/search/?api=1&query=Rua+1400+429+Balne%C3%A1rio+Cambori%C3%BA" target="_blank" rel="noopener">Como chegar ›</a>
-  <a class="small" href="login.html" style="justify-self:start;color:var(--muted)">Área da loja</a>
+  <a class="small link-loja" href="login.html">Área da loja</a>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>

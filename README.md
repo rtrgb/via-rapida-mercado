@@ -76,6 +76,7 @@ O front-end é publicado pelo GitHub Pages (Settings > Pages > Branch: `main`, p
 | Cancelamento da inscrição apaga os dados (RN10) | `cancelar_inscricao` |
 | Um aviso por e-mail por vez que o pão fica disponível (RF07) | `reivindicar_aviso` |
 | Vendas = balcão + reservas retiradas, por dia e hora (RF16 a RF19) | `relatorio_vendas` |
+| Produção e descarte por dia (pães feitos e sobras não somadas) | `relatorio_producao` |
 
 ## Andamento
 

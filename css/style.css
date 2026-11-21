@@ -227,7 +227,7 @@ input[type=date] { width: 100%; height: 36px; padding: 0 10px; border: 1px solid
 .col .bseg:last-child { border-radius: 4px 4px 0 0; }
 .xl { margin: 6px 0 0 30px; display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 2px; font-size: 11px; color: var(--muted); text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .tip { position: absolute; z-index: 2; pointer-events: none; transform: translate(-50%, calc(-100% - 8px)); background: var(--ink); color: var(--white); font-size: 12px; line-height: 1.4; padding: 6px 9px; border-radius: 8px; white-space: nowrap; }
-.t-dias { min-width: 0; }
+.t-dias { min-width: 520px; }
 .t-dias th.num, .t-dias td.num { text-align: right; }
 .t-dias tr.tot td { border-top: 1px solid var(--line); font-weight: 600; }
 

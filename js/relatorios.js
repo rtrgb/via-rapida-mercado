@@ -1,5 +1,5 @@
 // relatórios de vendas (RF16 a RF19, RF22)
-// vendas = vendas no balcão + reservas retiradas
+// vendas = vendas no balcão + reservas retiradas; produção = fornadas e sobras descartadas
 (async function () {
   const $ = (id) => document.getElementById(id);
   if (!(await VR_AUTH.exigirLogin())) return;
@@ -23,8 +23,8 @@
     carregar();
   }
 
-  async function buscar(de, ate) {
-    const { data, error } = await db.rpc('relatorio_vendas', { p_de: de, p_ate: ate });
+  async function buscar(de, ate, funcao = 'relatorio_vendas') {
+    const { data, error } = await db.rpc(funcao, { p_de: de, p_ate: ate });
     if (error) throw error;
     return data || [];
   }
@@ -35,20 +35,22 @@
     if (de > ate) { $('erro').textContent = 'A data inicial é depois da final.'; $('erro').hidden = false; return; }
     try {
       const seg = segunda(hoje);
-      const [linhas, semana] = await Promise.all([buscar(de, ate), buscar(soma(seg, -7), hoje)]);
+      const [linhas, semana, prod] = await Promise.all([buscar(de, ate), buscar(soma(seg, -7), hoje), buscar(de, ate, 'relatorio_producao')]);
       $('erro').hidden = true;
 
       // um item por dia do período, mesmo sem venda
       const porDia = {};
-      for (let d = de; d <= ate; d = soma(d, 1)) porDia[d] = { dia: d, b: 0, r: 0 };
+      for (let d = de; d <= ate; d = soma(d, 1)) porDia[d] = { dia: d, b: 0, r: 0, p: 0, x: 0 };
       const horas = {};
       linhas.forEach((l) => {
         if (porDia[l.dia]) { porDia[l.dia].b += l.balcao; porDia[l.dia].r += l.reservas; }
         horas[l.hora] = (horas[l.hora] || 0) + l.balcao + l.reservas;
       });
+      prod.forEach((l) => { if (porDia[l.dia]) { porDia[l.dia].p += l.feitos; porDia[l.dia].x += l.descarte; } });
       dias = Object.values(porDia);
 
       resumo(semana, seg);
+      producao();
       graficoVendas();
       graficoPico(horas);
       tabela();
@@ -81,6 +83,15 @@
       comp += p === 0 ? ' (igual).' : ` (${p > 0 ? '+' : ''}${p}%).`;
     } else comp += '.';
     $('s-comp').textContent = comp;
+  }
+
+  // produção do período: quanto saiu do forno, quanto vendeu e quanto foi descartado
+  function producao() {
+    const t = dias.reduce((s, d) => ({ p: s.p + d.p, v: s.v + d.b + d.r, x: s.x + d.x }), { p: 0, v: 0, x: 0 });
+    $('p-feitos').textContent = t.p;
+    $('p-vendidos').textContent = t.v;
+    $('p-descarte').textContent = t.x;
+    $('p-taxa').textContent = t.p ? Math.round((t.x / t.p) * 100) + '%' : '–';
   }
 
   function graficoVendas() {
@@ -144,17 +155,18 @@
   }
 
   function tabela() {
-    const t = dias.reduce((s, d) => ({ b: s.b + d.b, r: s.r + d.r }), { b: 0, r: 0 });
-    $('lista').innerHTML = dias.slice().reverse().map((d) => `<tr><td>${SEM[dt(d.dia).getDay()]}, ${ddmm(d.dia)}</td>
-      <td class="num">${d.b}</td><td class="num">${d.r}</td><td class="num"><b>${d.b + d.r}</b></td></tr>`).join('')
-      + `<tr class="tot"><td>Total</td><td class="num">${t.b}</td><td class="num">${t.r}</td><td class="num"><b>${t.b + t.r}</b></td></tr>`;
+    const t = dias.reduce((s, d) => ({ p: s.p + d.p, b: s.b + d.b, r: s.r + d.r, x: s.x + d.x }), { p: 0, b: 0, r: 0, x: 0 });
+    const linha = (d) => `<td class="num">${d.p}</td><td class="num">${d.b}</td><td class="num">${d.r}</td>
+      <td class="num"><b>${d.b + d.r}</b></td><td class="num">${d.x}</td>`;
+    $('lista').innerHTML = dias.slice().reverse().map((d) => `<tr><td>${SEM[dt(d.dia).getDay()]}, ${ddmm(d.dia)}</td>${linha(d)}</tr>`).join('')
+      + `<tr class="tot"><td>Total</td>${linha(t)}</tr>`;
   }
 
   // RF22: CSV com ; para abrir direto no Excel em português
   $('csv').onclick = () => {
     if (!dias.length) return toast('Nada para exportar.');
-    const linhas = ['Dia;Dia da semana;Balcão;Reservas retiradas;Total']
-      .concat(dias.map((d) => `${ddmm(d.dia)}/${d.dia.slice(0, 4)};${SEM[dt(d.dia).getDay()]};${d.b};${d.r};${d.b + d.r}`));
+    const linhas = ['Dia;Dia da semana;Produzidos;Balcão;Reservas retiradas;Vendidos;Descartados']
+      .concat(dias.map((d) => `${ddmm(d.dia)}/${d.dia.slice(0, 4)};${SEM[dt(d.dia).getDay()]};${d.p};${d.b};${d.r};${d.b + d.r};${d.x}`));
     const blob = new Blob(['﻿' + linhas.join('\r\n')], { type: 'text/csv;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);

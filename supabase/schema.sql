@@ -454,6 +454,25 @@ begin
     from ev group by 1, 2 order by 1, 2;
 end $$;
 
+-- relatorios: producao por dia (feitos e descarte das sobras); o descarte entra no dia
+-- da fornada em que a loja escolheu nao somar a sobra
+create or replace function relatorio_producao(p_de date, p_ate date)
+returns table (dia date, feitos int, descarte int)
+language plpgsql stable security invoker set search_path = public as $$
+declare
+  v_ini timestamptz := p_de::timestamp at time zone 'America/Sao_Paulo';
+  v_fim timestamptz := (p_ate + 1)::timestamp at time zone 'America/Sao_Paulo';
+begin
+  if p_ate < p_de or p_ate - p_de > 366 then
+    raise exception 'Escolha um período de até 1 ano.';
+  end if;
+  return query
+  select (f.criada_em at time zone 'America/Sao_Paulo')::date, sum(f.quantidade)::int, sum(f.descarte)::int
+    from fornada f
+   where f.criada_em >= v_ini and f.criada_em < v_fim
+   group by 1 order by 1;
+end $$;
+
 -- PERMISSOES (RNF07)
 alter table produto  enable row level security;
 alter table fornada  enable row level security;
@@ -486,6 +505,7 @@ grant execute on function minhas_reservas(text) to anon, authenticated;
 grant execute on function cancelar_reserva(text, text) to anon, authenticated;
 grant execute on function alterar_reserva(text, text, int) to anon, authenticated;
 grant execute on function relatorio_vendas(date, date) to authenticated;
+grant execute on function relatorio_producao(date, date) to authenticated;
 grant execute on function nova_fornada(int, boolean, smallint) to authenticated;
 revoke execute on function reivindicar_aviso(smallint) from authenticated;
 grant execute on function reivindicar_aviso(smallint) to service_role;

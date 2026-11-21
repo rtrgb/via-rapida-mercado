@@ -18,7 +18,7 @@ Parceira: Via Rápida Mercado (Rua 1400, 429, Balneário Camboriú), dona Sra. A
 - Cores azul e branco (`--blue: #1D4ED8`), tema claro, visual limpo, botões discretos, textos curtos e diretos.
 - Nunca citar outra disciplina (Engenharia de Software) em código, README ou documentos.
 - Segurança: a chave anon pode ficar em `js/config.js`. A `service_role` e a chave do Brevo NUNCA vão para o código; ficam só nos Secrets das Edge Functions.
-- Visitante (anon) só acessa as funções `disponibilidade`, `criar_reserva`, `inscrever` e `cancelar_inscricao`. Todo o resto exige login.
+- Visitante (anon) só acessa as funções `disponibilidade`, `criar_reserva`, `inscrever`, `cancelar_inscricao`, `minhas_reservas`, `alterar_reserva` e `cancelar_reserva`. Todo o resto exige login.
 - `supabase/schema.sql` precisa continuar podendo rodar várias vezes num banco que já existe (use `if not exists`, `create or replace`, `drop ... if exists`).
 - Regras de negócio ficam no banco (gatilhos e funções), não só no front-end.
 - Comentários curtos; cite RF/RN do documento de requisitos quando ajudar.

@@ -10,10 +10,18 @@ window.VR_AUTH = {
     if (sair) sair.onclick = async () => { await VR.db.auth.signOut(); location.replace('login.html'); };
     return data.session;
   },
-  toast(msg) {
+  // acao opcional: { texto: 'Desfazer', fn } vira um botão no aviso
+  toast(msg, acao) {
     let t = document.getElementById('toast');
     if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
-    t.textContent = msg; t.hidden = false;
-    clearTimeout(t._h); t._h = setTimeout(() => (t.hidden = true), 2500);
+    t.textContent = msg;
+    if (acao) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.textContent = acao.texto;
+      b.onclick = () => { t.hidden = true; acao.fn(); };
+      t.appendChild(b);
+    }
+    t.hidden = false;
+    clearTimeout(t._h); t._h = setTimeout(() => (t.hidden = true), acao ? 6000 : Math.max(2500, msg.length * 60));
   },
 };

@@ -29,16 +29,23 @@
     if (!VR.db) return erro(VR.msg());
 
     $('enviar').disabled = true;
-    const { data: codigo, error } = await VR.db.rpc('criar_reserva', {
+    const { data, error } = await VR.db.rpc('criar_reserva', {
       p_nome: nome, p_contato: contato, p_quantidade: qtd, p_proxima: proxima,
     });
     $('enviar').disabled = false;
     if (error) { erro(VR.msg(error)); carregar(); return; }
+    // banco novo devolve { codigo, prazo }; o antigo, só o código
+    const r = Array.isArray(data) ? data[0] : { codigo: data, prazo: null };
+    try { localStorage.setItem('vr_contato', contato); } catch (_) { /* sem armazenamento: tudo bem */ }
 
     $('ok-nome').textContent = `Reservado, ${nome.split(' ')[0]}`;
-    $('ok-codigo').textContent = codigo;
+    $('ok-codigo').textContent = r.codigo;
     $('ok-qtd').textContent = `${qtd} ${qtd === 1 ? 'pão' : 'pães'}`;
     $('ok-fornada').textContent = proxima ? (proximaHora ? `Próxima, às ${proximaHora}` : 'Próxima') : 'Agora';
+    // RN07: 60 min após a fornada
+    $('ok-prazo').textContent = r.prazo
+      ? 'Até ' + new Date(r.prazo).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+      : 'Até 60 min após a fornada sair';
     $('form').hidden = true;
     $('ok').hidden = false;
   });

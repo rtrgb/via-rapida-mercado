@@ -124,7 +124,7 @@
     el.innerHTML = `<div class="plot">
         ${[topo, topo / 2].map((v) => `<span class="gl" style="bottom:${pct(v)}%"><b>${v}</b></span>`).join('')}<span class="gl zero"><b>0</b></span>
         <div class="bars">${itens.map((i, k) => `<div class="col" tabindex="0" data-k="${k}" aria-label="${i.dica}: ${pl(i.b + i.r)}">${
-          i.b ? `<i class="seg b" style="height:${pct(i.b)}%"></i>` : ''}${i.r ? `<i class="seg r" style="height:${pct(i.r)}%"></i>` : ''}</div>`).join('')}</div>
+          i.b ? `<i class="bseg b" style="height:${pct(i.b)}%"></i>` : ''}${i.r ? `<i class="bseg r" style="height:${pct(i.r)}%"></i>` : ''}</div>`).join('')}</div>
         <div class="tip" hidden></div>
       </div>
       <div class="xl">${itens.map((i, k) => `<span>${k % cada === 0 ? i.rot : ''}</span>`).join('')}</div>`;

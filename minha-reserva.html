@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Via Rápida Mercado · Minha reserva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-head"><div class="wrap"><a class="brand" href="./" aria-label="Via Rápida Mercado">via rápida<small>mercado</small></a></div></header>
+<main class="wrap">
+  <a class="back" href="./">Voltar</a>
+  <div style="display:grid;gap:4px"><h1 style="font-size:24px">Minha reserva</h1><span class="small">Use o e-mail ou telefone que você informou na reserva.</span></div>
+  <form id="form" class="inline" novalidate>
+    <label for="contato">E-mail ou telefone<input id="contato" type="text" autocomplete="email" maxlength="120" required></label>
+    <button id="buscar" class="btn btn-primary" type="submit">Buscar</button>
+  </form>
+  <p id="erro" class="erro" role="alert" hidden></p>
+  <p id="ok" class="ok-msg" role="status" hidden></p>
+  <div id="lista" style="display:grid;gap:12px"></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/minha-reserva.js"></script>
+</body>
+</html>

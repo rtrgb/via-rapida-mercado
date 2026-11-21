@@ -165,6 +165,67 @@ drop trigger if exists reserva_change on reserva;
 create trigger reserva_change after insert or update on reserva
   for each row execute function on_reserva_change();
 
+-- desfazer venda: se a venda tinha zerado o balcao, volta a ter pao
+create or replace function on_venda_delete() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare v_produto smallint; v_atual bigint; v_balcao int;
+begin
+  select produto_id into v_produto from fornada where id = old.fornada_id;
+  if v_produto is null then return old; end if; -- fornada apagada junto
+  select fornada_id, no_balcao into v_atual, v_balcao from calc_balcao(v_produto);
+  update produto set atualizado_em = now(), versao = versao + 1,
+         situacao = case when v_atual = old.fornada_id and v_balcao > 0 and v_balcao - old.quantidade <= 0
+                         then 'tem' else situacao end
+   where id = v_produto;
+  return old;
+end $$;
+
+drop trigger if exists venda_delete on venda;
+create trigger venda_delete after delete on venda
+  for each row execute function on_venda_delete();
+
+-- corrigir fornada: so a quantidade, e nunca menos do que ja saiu
+create or replace function on_fornada_check() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare v_saiu int;
+begin
+  if new.produto_id <> old.produto_id or new.criada_em <> old.criada_em then
+    raise exception 'Só dá para corrigir a quantidade da fornada.';
+  end if;
+  select coalesce((select sum(quantidade) from venda where fornada_id = old.id), 0)
+       + coalesce((select sum(quantidade) from reserva
+                    where fornada_id = old.id and status in ('aguardando', 'retirada')), 0)
+    into v_saiu;
+  if new.quantidade < v_saiu then
+    raise exception 'Já saíram % pães desta fornada (vendas e reservas). A quantidade não pode ser menor.', v_saiu;
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists fornada_check on fornada;
+create trigger fornada_check before update on fornada
+  for each row execute function on_fornada_check();
+
+-- depois de corrigir: zerou -> acabou (RN03); estava zerado e voltou -> tem
+create or replace function on_fornada_update() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare v_atual bigint; v_balcao int;
+begin
+  select fornada_id, no_balcao into v_atual, v_balcao from calc_balcao(new.produto_id);
+  update produto set atualizado_em = now(), versao = versao + 1,
+         situacao = case
+           when v_atual is distinct from new.id then situacao
+           when v_balcao <= 0 then 'acabou'
+           when v_balcao - (new.quantidade - old.quantidade) <= 0 then 'tem'
+           else situacao end
+   where id = new.produto_id;
+  return new;
+end $$;
+
+drop trigger if exists fornada_update on fornada;
+create trigger fornada_update after update of quantidade on fornada
+  for each row execute function on_fornada_update();
+
 -- reserva q nao retirou em 60min volta pra venda (RN07)
 create or replace function expirar_reservas() returns void
 language sql security definer set search_path = public as $$
@@ -199,13 +260,16 @@ begin
 end $$;
 
 -- reserva (RF08 RF09 RN05 RN06)
+-- devolve o codigo e o prazo de retirada (RN07); prazo nulo = proxima fornada
+-- o drop deixa trocar o retorno antigo (so o codigo) por este
+drop function if exists criar_reserva(text, text, int, boolean, smallint);
 create or replace function criar_reserva(
   p_nome text, p_contato text, p_quantidade int,
   p_proxima boolean default false, p_produto smallint default 1
-) returns text
+) returns table (codigo text, prazo timestamptz)
 language plpgsql security definer set search_path = public as $$
 declare
-  v_situacao text; v_fornada bigint; v_balcao int; v_codigo text;
+  v_situacao text; v_fornada bigint; v_balcao int; v_codigo text; v_prazo timestamptz;
 begin
   if p_quantidade is null or p_quantidade < 1 or p_quantidade > 10 then
     raise exception 'A reserva deve ter de 1 a 10 pães.';
@@ -219,17 +283,86 @@ begin
     if v_situacao <> 'tem' or v_fornada is null or v_balcao < p_quantidade then
       raise exception 'Só há % pães no balcão. Reserve menos ou da próxima fornada.', greatest(coalesce(v_balcao, 0), 0);
     end if;
+    select f.criada_em + interval '60 minutes' into v_prazo from fornada f where f.id = v_fornada;
   end if;
 
   loop
     v_codigo := 'VR-' || upper(substr(md5(random()::text), 1, 4));
-    exit when not exists (select 1 from reserva where codigo = v_codigo);
+    exit when not exists (select 1 from reserva r where r.codigo = v_codigo);
   end loop;
 
   insert into reserva (codigo, produto_id, fornada_id, nome, contato, quantidade)
   values (v_codigo, p_produto, case when p_proxima then null else v_fornada end,
           trim(p_nome), trim(p_contato), p_quantidade);
-  return v_codigo;
+  return query select v_codigo, v_prazo;
+end $$;
+
+-- contato comparavel: e-mail minusculo, telefone so com os digitos
+create or replace function norm_contato(t text) returns text
+language sql immutable set search_path = public as $$
+  select case when t like '%@%' then lower(trim(t)) else regexp_replace(coalesce(t, ''), '\D', '', 'g') end
+$$;
+
+-- cliente ve as proprias reservas pelo e-mail ou telefone usado
+create or replace function minhas_reservas(p_contato text)
+returns table (codigo text, quantidade int, status text, proxima boolean, prazo timestamptz, criada_em timestamptz)
+language plpgsql security definer set search_path = public as $$
+declare v text := norm_contato(p_contato);
+begin
+  if char_length(v) < 3 then raise exception 'Informe o e-mail ou telefone usado na reserva.'; end if;
+  perform expirar_reservas();
+  return query
+  select r.codigo, r.quantidade, r.status, r.fornada_id is null,
+         f.criada_em + interval '60 minutes', r.criada_em
+    from reserva r left join fornada f on f.id = r.fornada_id
+   where norm_contato(r.contato) = v
+     and (r.status = 'aguardando' or r.criada_em > now() - interval '1 day')
+   order by r.criada_em desc
+   limit 20;
+end $$;
+
+-- cliente cancela a propria reserva (os paes voltam ao balcao)
+create or replace function cancelar_reserva(p_codigo text, p_contato text) returns void
+language plpgsql security definer set search_path = public as $$
+declare v_id bigint;
+begin
+  perform expirar_reservas();
+  select id into v_id from reserva
+   where codigo = upper(trim(p_codigo)) and status = 'aguardando'
+     and char_length(norm_contato(p_contato)) >= 3
+     and norm_contato(contato) = norm_contato(p_contato)
+   for update;
+  if not found then raise exception 'Reserva não encontrada ou já encerrada.'; end if;
+  update reserva set status = 'cancelada', atualizada_em = now() where id = v_id;
+end $$;
+
+-- cliente muda a quantidade (RN06); para aumentar precisa ter pao no balcao (RN05)
+create or replace function alterar_reserva(p_codigo text, p_contato text, p_quantidade int) returns void
+language plpgsql security definer set search_path = public as $$
+declare r reserva%rowtype; v_produto smallint; v_situacao text; v_atual bigint; v_balcao int;
+begin
+  if p_quantidade is null or p_quantidade < 1 or p_quantidade > 10 then
+    raise exception 'A reserva deve ter de 1 a 10 pães.';
+  end if;
+  -- mesma trava do criar_reserva
+  select produto_id into v_produto from reserva where codigo = upper(trim(p_codigo));
+  select situacao into v_situacao from produto where id = v_produto for update;
+  perform expirar_reservas();
+  select * into r from reserva
+   where codigo = upper(trim(p_codigo)) and status = 'aguardando'
+     and char_length(norm_contato(p_contato)) >= 3
+     and norm_contato(contato) = norm_contato(p_contato)
+   for update;
+  if not found then raise exception 'Reserva não encontrada ou já encerrada.'; end if;
+
+  if r.fornada_id is not null and p_quantidade > r.quantidade then
+    select fornada_id, no_balcao into v_atual, v_balcao from calc_balcao(r.produto_id);
+    if v_situacao <> 'tem' or v_atual is distinct from r.fornada_id then v_balcao := 0; end if;
+    if greatest(v_balcao, 0) < p_quantidade - r.quantidade then
+      raise exception 'Só dá para aumentar até % pães agora.', r.quantidade + greatest(v_balcao, 0);
+    end if;
+  end if;
+  update reserva set quantidade = p_quantidade, atualizada_em = now() where id = r.id;
 end $$;
 
 -- inscricao do aviso por email (RF05)
@@ -319,6 +452,9 @@ grant execute on function disponibilidade(smallint) to anon, authenticated;
 grant execute on function criar_reserva(text, text, int, boolean, smallint) to anon, authenticated;
 grant execute on function inscrever(text, text, boolean, smallint) to anon, authenticated;
 grant execute on function cancelar_inscricao(uuid) to anon, authenticated;
+grant execute on function minhas_reservas(text) to anon, authenticated;
+grant execute on function cancelar_reserva(text, text) to anon, authenticated;
+grant execute on function alterar_reserva(text, text, int) to anon, authenticated;
 grant execute on function relatorio_vendas(date, date) to authenticated;
 revoke execute on function reivindicar_aviso(smallint) from authenticated;
 grant execute on function reivindicar_aviso(smallint) to service_role;

@@ -31,7 +31,7 @@
     </div>
     <p id="alerta" class="alerta" role="status" hidden></p>
     <p id="erro" class="erro" role="alert" hidden></p>
-    <div class="card"><h3 id="fornada-titulo">Fornada atual</h3>
+    <div class="card"><div class="card-head"><h3 id="fornada-titulo">Fornada atual</h3><button id="corrigir" class="btn btn-ghost btn-sm" type="button" hidden>Corrigir quantidade</button></div>
       <dl class="stats">
         <div><dt>Feitos</dt><dd id="feitos">–</dd></div>
         <div><dt>Vendidos</dt><dd id="vendidos">–</dd></div>
@@ -46,7 +46,7 @@
         </div>
       </div>
       <div class="card"><h3>Nova fornada</h3>
-        <form class="inline" id="f-fornada"><label for="qtd">Quantidade<input id="qtd" type="number" min="1" max="999" value="45"></label><button class="btn btn-primary" type="submit">Pronta</button></form>
+        <form class="inline" id="f-fornada"><label for="qtd">Quantidade<input id="qtd" type="number" min="1" max="999" value="45"></label><button id="pronta" class="btn btn-primary" type="submit">Pronta</button></form>
       </div>
       <div class="card"><h3>Próxima fornada</h3>
         <form class="inline" id="f-proxima"><label for="hora">Horário<input id="hora" type="time"></label><button class="btn btn-ghost" type="submit">Salvar</button></form>

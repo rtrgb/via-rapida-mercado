@@ -3,9 +3,12 @@
   const $ = (id) => document.getElementById(id);
   if (!(await VR_AUTH.exigirLogin())) return;
   const db = VR.db, toast = VR_AUTH.toast;
-  let produto = null, fornada = null, balcao = 0;
+  let produto = null, fornada = null, balcao = 0, vendendo = false;
 
   const erro = (m) => { $('erro').textContent = m; $('erro').hidden = !m; };
+  const hhmm = (iso) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const chips = () => document.querySelectorAll('#vendas button');
+  const travarChips = () => chips().forEach((b) => (b.disabled = vendendo || !fornada || +b.dataset.n > balcao));
 
   async function carregar() {
     await db.rpc('disponibilidade'); // também expira reservas vencidas (RN07)
@@ -32,26 +35,31 @@
     $('produto').textContent = produto.nome;
     $('ton').setAttribute('aria-pressed', tem);
     $('toff').setAttribute('aria-pressed', !tem);
-    $('fornada-titulo').textContent = fornada
-      ? 'Fornada das ' + new Date(fornada.criada_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-      : 'Nenhuma fornada ainda';
+    $('fornada-titulo').textContent = fornada ? 'Fornada das ' + hhmm(fornada.criada_em) : 'Nenhuma fornada ainda';
+    $('corrigir').hidden = !fornada;
     $('feitos').textContent = feitos;
     $('vendidos').textContent = vendidos;
     $('reservados').textContent = reservados;
     $('balcao').textContent = balcao;
     if (produto.proxima_fornada && document.activeElement !== $('hora')) $('hora').value = produto.proxima_fornada.slice(0, 5);
-    document.querySelectorAll('#vendas button').forEach((b) => (b.disabled = !fornada || +b.dataset.n > balcao));
+    travarChips();
 
     const acabando = tem && balcao > 0 && balcao <= produto.limite_alerta; // RF20, RN09
     $('alerta').hidden = !acabando;
     $('alerta').textContent = balcao === 1 ? 'Acabando: resta 1 pão no balcão.' : `Acabando: restam ${balcao} pães no balcão.`;
   }
 
-  // aviso por e-mail aos inscritos (RF07); o servidor evita envio repetido
+  // aviso por e-mail aos inscritos (RF07); o servidor libera 1 envio por vez que o pão fica disponível
   async function avisar() {
     const { data, error } = await db.functions.invoke('avisar');
     if (error) return ' O aviso por e-mail falhou.';
+    if (data && data.motivo === 'ja_avisado') {
+      const p = await db.from('produto').select('avisado_em').eq('id', 1).single();
+      const h = p.data && p.data.avisado_em;
+      return h ? ` Os inscritos já foram avisados às ${hhmm(h)}; o e-mail não foi enviado de novo.` : ' O e-mail não foi enviado.';
+    }
     const n = (data && data.enviados) || 0;
+    if (!n && data && data.inscritos === 0) return ' Ninguém inscrito no aviso por e-mail.';
     return n ? ` Aviso enviado a ${n} ${n === 1 ? 'inscrito' : 'inscritos'}.` : '';
   }
 
@@ -65,23 +73,50 @@
   $('ton').onclick = () => situacao('tem');
   $('toff').onclick = () => situacao('acabou');
 
-  document.querySelectorAll('#vendas button').forEach((b) => (b.onclick = async () => {
+  // venda: trava os botões até salvar (evita toque duplo) e oferece desfazer
+  chips().forEach((b) => (b.onclick = async () => {
+    if (vendendo) return;
     const n = +b.dataset.n;
-    const { error } = await db.from('venda').insert({ fornada_id: fornada.id, quantidade: n });
-    if (error) return toast(VR.msg(error));
-    toast(`Venda de ${n} registrada.`);
+    vendendo = true; travarChips();
+    const { data, error } = await db.from('venda').insert({ fornada_id: fornada.id, quantidade: n }).select('id').single();
+    vendendo = false;
+    if (error) { toast(VR.msg(error)); return carregar(); }
+    toast(`Venda de ${n} registrada.`, { texto: 'Desfazer', fn: () => desfazerVenda(data.id, n) });
     carregar();
   }));
+
+  async function desfazerVenda(id, n) {
+    const { error } = await db.from('venda').delete().eq('id', id);
+    if (error) return toast(VR.msg(error));
+    toast(`Venda de ${n} desfeita.`);
+    carregar();
+  }
 
   $('f-fornada').addEventListener('submit', async (e) => {
     e.preventDefault();
     const q = parseInt($('qtd').value, 10);
     if (!(q > 0)) return toast('Informe a quantidade da fornada.');
+    $('pronta').disabled = true;
     const { error } = await db.from('fornada').insert({ produto_id: 1, quantidade: q });
+    $('pronta').disabled = false;
     if (error) return toast(VR.msg(error));
     carregar();
     toast(`Fornada de ${q} pronta.` + (await avisar()));
   });
+
+  // corrigir quantidade digitada errada; o banco não deixa ficar menor do que já saiu
+  $('corrigir').onclick = async () => {
+    if (!fornada) return;
+    const r = prompt(`Quantidade certa da fornada das ${hhmm(fornada.criada_em)}:`, fornada.quantidade);
+    if (r === null) return;
+    const q = parseInt(r, 10);
+    if (!(q > 0 && q <= 999)) return toast('Informe um número de 1 a 999.');
+    if (q === fornada.quantidade) return;
+    const { error } = await db.from('fornada').update({ quantidade: q }).eq('id', fornada.id);
+    if (error) return toast(VR.msg(error));
+    toast(`Fornada corrigida para ${q}.`);
+    carregar();
+  };
 
   $('f-proxima').addEventListener('submit', async (e) => {
     e.preventDefault();

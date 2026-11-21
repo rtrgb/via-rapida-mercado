@@ -89,8 +89,9 @@ button.btn:disabled { opacity: .6; cursor: wait; }
 .side a[aria-current="page"] { background: var(--blue-soft); color: var(--blue); font-weight: 600; }
 .side .quem { font-size: 12px; color: var(--muted); padding: 0 10px; overflow-wrap: anywhere; }
 @media (max-width: 760px) {
-  .app { grid-template-columns: 1fr; border: 0; }
-  .side { border-right: 0; border-bottom: 1px solid var(--line); gap: 10px; padding: 14px 16px; }
+  .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; border: 0; }
+  .side { position: relative; border-right: 0; border-bottom: 1px solid var(--line); gap: 10px; padding: 14px 16px; }
+  .side #sair { position: absolute; top: 9px; right: 8px; }
   .side nav { grid-auto-flow: column; overflow-x: auto; }
   .side .quem { display: none; }
 }
@@ -121,7 +122,7 @@ button.btn:disabled { opacity: .6; cursor: wait; }
 .inline { display: flex; gap: 8px; align-items: end; }
 .inline label { flex: 1; min-width: 0; }
 input[type=number], input[type=time], input[type=password] { width: 100%; height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--white); font: inherit; }
-.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom)); background: var(--ink); color: var(--white); padding: 10px 16px; border-radius: 10px; font-size: 14px; font-weight: 500; box-shadow: 0 12px 32px -12px rgba(16,24,40,.4); }
+.toast { position: fixed; left: 50%; width: max-content; max-width: calc(100vw - 32px); transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom)); background: var(--ink); color: var(--white); padding: 10px 16px; border-radius: 10px; font-size: 14px; font-weight: 500; box-shadow: 0 12px 32px -12px rgba(16,24,40,.4); }
 .tablewrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; min-width: 600px; font-size: 14px; }
 th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--line); }
@@ -136,7 +137,36 @@ td.num { font-variant-numeric: tabular-nums; }
 .acts button { border: 1px solid var(--line); background: var(--white); border-radius: 8px; padding: 4px 10px; cursor: pointer; font: inherit; font-size: 13px; }
 .acts button:hover { border-color: var(--blue-line); color: var(--blue); }
 .vazio { color: var(--muted); font-size: 14px; padding: 18px 10px; }
+.toast button { margin-left: 12px; padding: 0; border: 0; background: none; color: #A9C1FF; font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
+.ok-msg { background: var(--ok-soft); color: var(--ok); border-radius: 10px; padding: 12px; font-size: 14px; }
+.card-head .btn-sm { height: 32px; }
+/* reservas do dia no celular: uma linha vira um cartão */
+@media (max-width: 560px) {
+  .t-res { min-width: 0; }
+  .t-res thead { display: none; }
+  .t-res tr { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "cod st" "nome qtd" "cont cont" "acts acts"; gap: 4px 10px; padding: 12px 10px; border-bottom: 1px solid var(--line); }
+  .t-res tr:last-child { border-bottom: 0; }
+  .t-res td { padding: 0; border: 0; }
+  .t-res .c-cod { grid-area: cod; font-weight: 600; }
+  .t-res .c-st { grid-area: st; justify-self: end; }
+  .t-res .c-nome { grid-area: nome; }
+  .t-res .c-qtd { grid-area: qtd; justify-self: end; font-weight: 600; }
+  .t-res .c-cont { grid-area: cont; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+  .t-res .c-acts { grid-area: acts; padding-top: 6px; }
+  .t-res .c-acts:empty { display: none; }
+  .t-res .acts button { padding: 8px 12px; }
+  .t-res td.vazio { grid-column: 1 / -1; padding: 6px 0; }
+}
 .login { max-width: 380px; margin: 56px auto; display: grid; gap: 18px; }
+
+/* minha reserva (cliente) */
+.res { border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 12px; }
+.res-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.res-top b { font-family: var(--display); font-size: 20px; letter-spacing: .04em; color: var(--blue); }
+.res .list div:last-child { border-bottom: 0; padding-bottom: 0; }
+.res-acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.res-acts .btn-sm { height: 40px; }
+.res-acts .cancelar { margin-left: auto; color: #B42318; }
 
 /* relatórios */
 .btn-sm { height: 36px; padding: 0 14px; font-size: 14px; }
@@ -153,8 +183,8 @@ input[type=date] { width: 100%; height: 36px; padding: 0 10px; border: 1px solid
 .legenda { display: flex; gap: 16px; font-size: 13px; color: var(--muted); margin-top: -4px; }
 .legenda span { display: inline-flex; align-items: center; gap: 6px; }
 .legenda i { width: 10px; height: 10px; border-radius: 3px; }
-.k-b, .seg.b { background: var(--blue); }
-.k-r, .seg.r { background: #D97706; }
+.k-b, .bseg.b { background: var(--blue); }
+.k-r, .bseg.r { background: #D97706; }
 .chart { --n: 1; min-width: 0; }
 .plot { position: relative; height: 180px; margin-left: 30px; }
 .gl { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--line); }
@@ -163,8 +193,8 @@ input[type=date] { width: 100%; height: 36px; padding: 0 10px; border: 1px solid
 .bars { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 2px; }
 .col { height: 100%; display: flex; flex-direction: column-reverse; align-items: center; gap: 2px; border-radius: 4px; outline: none; }
 .col:hover, .col:focus-visible { background: var(--bg); }
-.seg { display: block; width: min(100%, 28px); }
-.col .seg:last-child { border-radius: 4px 4px 0 0; }
+.bseg { display: block; width: min(100%, 28px); }
+.col .bseg:last-child { border-radius: 4px 4px 0 0; }
 .xl { margin: 6px 0 0 30px; display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 2px; font-size: 11px; color: var(--muted); text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .tip { position: absolute; z-index: 2; pointer-events: none; transform: translate(-50%, calc(-100% - 8px)); background: var(--ink); color: var(--white); font-size: 12px; line-height: 1.4; padding: 6px 9px; border-radius: 8px; white-space: nowrap; }
 .t-dias { min-width: 0; }

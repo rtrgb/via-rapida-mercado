@@ -31,6 +31,19 @@ Parceira: Via Rápida Mercado (Rua 1400, 429, Balneário Camboriú), dona Sra. A
 - RF07 aviso por e-mail: 1 envio por vez que o pão fica disponível, mínimo 30 min entre envios (`reivindicar_aviso`).
 - RF16 a RF19 relatórios: vendas = balcão + reservas retiradas (`relatorio_vendas`). RF21 QR Code. RF22 CSV.
 
+## Estado atual (21/11/2026)
+- Sistema completo e no ar. Feito nesta etapa: revisão de uso, "Minha reserva", ajustes visuais, sobras da fornada e relatório de produção.
+- Funções públicas: `disponibilidade`, `criar_reserva` (devolve código e prazo), `inscrever`, `cancelar_inscricao`, `minhas_reservas`, `alterar_reserva`, `cancelar_reserva` (estas três buscam pelo e-mail ou telefone, sem código, por decisão do autor).
+- Funções da loja: `nova_fornada` (separa feitos, `sobra` e `descarte`), `relatorio_vendas`, `relatorio_producao`.
+- Balcão = feitos + sobra - vendas - reservas aguardando/retiradas.
+- Antes do push, rodar o `schema.sql` no Supabase quando ele mudar (o front usa as funções novas).
+- Próximos passos e ideias pendentes: seção "Próximos passos" do README.
+
+## Identidade visual (até sair o logo)
+- Marca: losango azul (quadrado girado 45°) + "via rápida" em Bricolage Grotesque 700 + "mercado" em Figtree 500 cinza.
+- Cores: azul `#1D4ED8`, texto `#101828`, cinza `#667085`, verde "tem pão" `#12804A` sobre `#E8F6EE`. Fundo branco, tema claro.
+- Onde a marca aparece: cabeçalho (`.brand`), `img/favicon.svg`, `img/icone-180.png`, `img/compartilhar.png` (prévia do WhatsApp, 1200x630), cartaz do QR Code e e-mail do aviso (só texto).
+
 ## Testar
 - Servir a pasta com `npx serve .` e abrir `index.html` / `login.html`.
 - Testar em 360px de largura (RNF01).

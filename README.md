@@ -92,3 +92,20 @@ O front-end é publicado pelo GitHub Pages (Settings > Pages > Branch: `main`, p
 - [x] Revisão antes da apresentação: desfazer venda, corrigir fornada, avisos do e-mail, login, painel no celular
 - [x] Minha reserva (cliente consulta, altera e cancela)
 - [x] Ajustes visuais: quadro "Tem pão?" colorido, ícone, prévia do link, login, tabelas e espaçamentos
+- [x] Painel explicado na tela e nova fornada com sobras separadas (feitos, sobra e descarte)
+- [x] Relatório de produção e descarte (tela e CSV)
+- [ ] Logo da Via Rápida Mercado
+- [ ] Apresentação para a dona (23 a 27/11/2026) e ajustes depois do feedback dela
+- [ ] Entrega final (02/12/2026)
+
+### Próximos passos
+
+- Logo: quando estiver pronto, trocar a marca do cabeçalho (`.brand` no CSS), `img/favicon.svg`, `img/icone-180.png`, `img/compartilhar.png` e o cartaz do QR Code.
+- Ideias para depois do feedback da dona:
+  - limitar a quantidade da reserva ao que há no balcão;
+  - esconder a "Próxima fornada" quando o horário já passou;
+  - buscar reserva pelo código em "Reservas do dia";
+  - botão "Confirmar que ainda tem pão" (evita o aviso de 2 h sem mandar outro e-mail);
+  - erros do banco e de sessão expirada ainda em inglês;
+  - "Esqueci a senha" no login;
+  - reservas da próxima fornada que somam mais do que a fornada tem.

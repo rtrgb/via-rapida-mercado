@@ -39,10 +39,10 @@ Parceira: Via Rápida Mercado (Rua 1400, 429, Balneário Camboriú), dona Sra. A
 - Antes do push, rodar o `schema.sql` no Supabase quando ele mudar (o front usa as funções novas).
 - Próximos passos e ideias pendentes: seção "Próximos passos" do README.
 
-## Identidade visual (até sair o logo)
-- Marca: losango azul (quadrado girado 45°) + "via rápida" em Bricolage Grotesque 700 + "mercado" em Figtree 500 cinza.
+## Identidade visual
+- Logo oficial na pasta `logo/`: `logo.png` (cabeçalho, painel, login e cartaz do QR Code, via `.brand img`), `favicon.ico`, `favicon-32.png`, `icone-180.png` e `compartilhar.jpg` (prévia do WhatsApp, 1200x630).
 - Cores: azul `#1D4ED8`, texto `#101828`, cinza `#667085`, verde "tem pão" `#12804A` sobre `#E8F6EE`. Fundo branco, tema claro.
-- Onde a marca aparece: cabeçalho (`.brand`), `img/favicon.svg`, `img/icone-180.png`, `img/compartilhar.png` (prévia do WhatsApp, 1200x630), cartaz do QR Code e e-mail do aviso (só texto).
+- E-mail do aviso continua só texto.
 
 ## Testar
 - Servir a pasta com `npx serve .` e abrir `index.html` / `login.html`.

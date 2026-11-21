@@ -21,9 +21,11 @@ a { color: var(--blue); }
 .wrap { max-width: 440px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
 .site-head { border-bottom: 1px solid var(--line); }
 .site-head .wrap { display: flex; align-items: center; justify-content: space-between; padding-block: 16px; }
-.brand { display: inline-flex; align-items: baseline; gap: 6px; font-family: var(--display); font-weight: 700; font-size: 18px; letter-spacing: -0.02em; color: var(--ink); text-decoration: none; }
-.brand::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--blue); transform: translateY(-1px) rotate(45deg); align-self: center; }
-.brand small { font-family: var(--body); font-weight: 500; font-size: 13px; color: var(--muted); }
+/* logo (pasta logo/) */
+.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+.brand img { display: block; height: 36px; width: auto; }
+.brand small { font-weight: 500; font-size: 13px; color: var(--muted); }
+.brand-lg img { height: 64px; }
 main.wrap { padding-block: 22px 40px; display: grid; gap: 18px; }
 .eyebrow { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
 .small { font-size: 13px; color: var(--muted); }

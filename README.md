@@ -108,7 +108,3 @@ O front-end é publicado pelo GitHub Pages (Settings > Pages > Branch: `main`, p
   - erros do banco e de sessão expirada ainda em inglês;
   - "Esqueci a senha" no login;
   - reservas da próxima fornada que somam mais do que a fornada tem.
-- Ajustes visuais pendentes:
-  - `index.html`: rever o rótulo "Fornada do dia" acima de "Pão francês" (talvez tirar e deixar só o título);
-  - `painel.html` e `relatorios.html`: algum texto está colado na borda do quadro; achar qual e dar pelo menos 12px de respiro;
-  - conferir o logo novo no celular de verdade (360px) e a prévia do link no WhatsApp.

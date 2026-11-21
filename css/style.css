@@ -116,6 +116,7 @@ button.btn:disabled { opacity: .6; cursor: wait; }
 .main { padding: 24px max(16px, env(safe-area-inset-right)) 40px max(16px, env(safe-area-inset-left)); display: grid; gap: 18px; align-content: start; min-width: 0; }
 @media (min-width: 761px) {
   .main { padding: 24px; }
+  .side .brand img { height: 28px; } /* "painel" ao lado do logo sem encostar na borda */
   .side #sair { position: relative; margin-top: 13px; }
   .side #sair::before { content: ""; position: absolute; left: 10px; right: 10px; top: -7px; border-top: 1px solid var(--line); }
 }
@@ -162,7 +163,8 @@ td.num { font-variant-numeric: tabular-nums; }
 .toast button { margin-left: 12px; padding: 0; border: 0; background: none; color: #A9C1FF; font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
 .ok-msg { background: var(--ok-soft); color: var(--ok); border-radius: 10px; padding: 12px; font-size: 14px; }
 .card-head .btn-sm { height: 32px; }
-.card-tabela { padding: 6px 8px; }
+.card-tabela { padding: 6px 12px; }
+.t-dias :is(th, td):first-child { padding-left: 6px; white-space: nowrap; }
 @media (min-width: 561px) {
   .t-res .c-cod, .t-res .c-qtd { white-space: nowrap; }
   .t-res .acts { flex-wrap: nowrap; }

@@ -47,12 +47,20 @@
     $('alerta').textContent = balcao === 1 ? 'Acabando: resta 1 pão no balcão.' : `Acabando: restam ${balcao} pães no balcão.`;
   }
 
+  // aviso por e-mail aos inscritos (RF07); o servidor evita envio repetido
+  async function avisar() {
+    const { data, error } = await db.functions.invoke('avisar');
+    if (error) return ' O aviso por e-mail falhou.';
+    const n = (data && data.enviados) || 0;
+    return n ? ` Aviso enviado a ${n} ${n === 1 ? 'inscrito' : 'inscritos'}.` : '';
+  }
+
   async function situacao(nova) {
     if (nova === 'tem' && balcao <= 0) return toast('Não há pães no balcão. Registre uma nova fornada.');
     const { error } = await db.from('produto').update({ situacao: nova, atualizado_em: new Date().toISOString() }).eq('id', 1);
     if (error) return toast(VR.msg(error));
-    toast(nova === 'tem' ? 'Marcado como "tem pão".' : 'Marcado como "acabou".');
     carregar();
+    toast(nova === 'tem' ? 'Marcado como "tem pão".' + (await avisar()) : 'Marcado como "acabou".');
   }
   $('ton').onclick = () => situacao('tem');
   $('toff').onclick = () => situacao('acabou');
@@ -71,8 +79,8 @@
     if (!(q > 0)) return toast('Informe a quantidade da fornada.');
     const { error } = await db.from('fornada').insert({ produto_id: 1, quantidade: q });
     if (error) return toast(VR.msg(error));
-    toast(`Fornada de ${q} pronta.`);
     carregar();
+    toast(`Fornada de ${q} pronta.` + (await avisar()));
   });
 
   $('f-proxima').addEventListener('submit', async (e) => {

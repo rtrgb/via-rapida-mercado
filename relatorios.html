@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Via Rápida Mercado · Relatórios</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="loja">
+<div class="app">
+  <aside class="side">
+    <span class="brand">via rápida<small>painel</small></span>
+    <nav aria-label="Painel">
+      <a href="painel.html">Painel</a>
+      <a href="reservas.html">Reservas do dia</a>
+      <a href="relatorios.html" aria-current="page">Relatórios</a>
+      <a href="qrcode.html">QR Code</a>
+      <button id="sair" type="button">Sair</button>
+    </nav>
+    <span id="quem" class="quem"></span>
+  </aside>
+  <main class="main">
+    <div class="main-head"><h2>Relatórios</h2>
+      <button id="csv" class="btn btn-ghost btn-sm" type="button">Exportar CSV</button>
+    </div>
+    <form id="periodo" class="filtros">
+      <div class="chips" id="atalhos">
+        <button type="button" data-d="7">7 dias</button><button type="button" data-d="14">14 dias</button><button type="button" data-d="30">30 dias</button>
+      </div>
+      <label>De<input id="de" type="date" required></label>
+      <label>Até<input id="ate" type="date" required></label>
+    </form>
+    <p id="erro" class="erro" role="alert" hidden></p>
+
+    <div class="card">
+      <dl class="stats">
+        <div><dt>Vendidos no período</dt><dd id="s-total">–</dd></div>
+        <div><dt>Média por dia</dt><dd id="s-media">–</dd></div>
+        <div><dt>Melhor dia</dt><dd id="s-melhor">–</dd></div>
+        <div class="hl"><dt>Esta semana</dt><dd id="s-semana">–</dd></div>
+      </dl>
+      <p id="s-comp" class="small"></p>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3 id="t-vendas">Vendas por dia</h3>
+        <div class="toggle mini" role="group" aria-label="Agrupar por">
+          <button id="g-dia" type="button" aria-pressed="true">Dia</button>
+          <button id="g-semana" type="button" aria-pressed="false">Semana</button>
+        </div>
+      </div>
+      <div class="legenda"><span><i class="k-b"></i>Balcão</span><span><i class="k-r"></i>Reservas retiradas</span></div>
+      <div id="c-vendas" class="chart"></div>
+    </div>
+
+    <div class="card">
+      <h3>Horários de pico</h3>
+      <p class="small" id="pico-txt"></p>
+      <div id="c-pico" class="chart"></div>
+    </div>
+
+    <div class="card" style="padding:6px 8px"><div class="tablewrap">
+      <table class="t-dias"><thead><tr><th>Dia</th><th class="num">Balcão</th><th class="num">Reservas</th><th class="num">Total</th></tr></thead>
+      <tbody id="lista"></tbody></table>
+    </div></div>
+  </main>
+</div>
+<div id="toast" class="toast" role="status" hidden></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/relatorios.js"></script>
+</body>
+</html>

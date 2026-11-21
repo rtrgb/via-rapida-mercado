@@ -55,19 +55,25 @@ create table if not exists inscrito (
   unique (produto_id, email)
 );
 
+-- colunas do aviso por e-mail (RF07); "if not exists" deixa rodar de novo num banco antigo
+alter table produto add column if not exists disponivel_desde timestamptz;
+alter table produto add column if not exists avisado_em timestamptz;
+
 create index if not exists fornada_produto_idx on fornada (produto_id, criada_em desc);
 create index if not exists venda_fornada_idx   on venda (fornada_id);
 create index if not exists reserva_fornada_idx on reserva (fornada_id, status);
+create index if not exists venda_data_idx      on venda (criada_em);
+create index if not exists reserva_data_idx    on reserva (status, atualizada_em);
 
 -- GATILHOS
 
--- fornada nova -> tem pao + liga as reservas pendentes
+-- fornada nova -> tem pao, libera o aviso por e-mail e liga as reservas pendentes
 create or replace function on_fornada_insert() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
   update reserva set fornada_id = new.id, atualizada_em = now()
    where produto_id = new.produto_id and fornada_id is null and status = 'aguardando';
-  update produto set situacao = 'tem', atualizado_em = now(), versao = versao + 1
+  update produto set situacao = 'tem', disponivel_desde = now(), atualizado_em = now(), versao = versao + 1
    where id = new.produto_id;
   return new;
 end $$;
@@ -96,6 +102,20 @@ begin
   update produto set versao = versao + 1 where id = coalesce(new.produto_id, old.produto_id);
   return coalesce(new, old);
 end $$;
+
+-- guarda quando o pao voltou a ficar disponivel (RF07)
+create or replace function on_produto_update() returns trigger
+language plpgsql as $$
+begin
+  if new.situacao = 'tem' and old.situacao is distinct from 'tem' then
+    new.disponivel_desde := now();
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists produto_update on produto;
+create trigger produto_update before update on produto
+  for each row execute function on_produto_update();
 
 -- BALCAO (RN02)
 -- fornada - vendas - reservas (aguardando/retiradas)
@@ -234,6 +254,43 @@ begin
   return found;
 end $$;
 
+-- FUNCOES DA LOJA
+
+-- trava do aviso: libera 1 envio por vez que o pao fica disponivel,
+-- com no minimo 30 min entre envios (evita spam se ligar/desligar)
+create or replace function reivindicar_aviso(p_produto smallint default 1) returns boolean
+language plpgsql security definer set search_path = public as $$
+begin
+  update produto set avisado_em = now()
+   where id = p_produto and situacao = 'tem' and disponivel_desde is not null
+     and (avisado_em is null
+          or (avisado_em < disponivel_desde and avisado_em < now() - interval '30 minutes'));
+  return found;
+end $$;
+
+-- relatorios (RF16 a RF19, RF22): vendas no balcao + reservas retiradas, por dia e hora
+create or replace function relatorio_vendas(p_de date, p_ate date)
+returns table (dia date, hora int, balcao int, reservas int)
+language plpgsql stable security invoker set search_path = public as $$
+declare
+  v_ini timestamptz := p_de::timestamp at time zone 'America/Sao_Paulo';
+  v_fim timestamptz := (p_ate + 1)::timestamp at time zone 'America/Sao_Paulo';
+begin
+  if p_ate < p_de or p_ate - p_de > 366 then
+    raise exception 'Escolha um período de até 1 ano.';
+  end if;
+  return query
+  with ev as (
+    select criada_em at time zone 'America/Sao_Paulo' as t, quantidade as b, 0 as r
+      from venda where criada_em >= v_ini and criada_em < v_fim
+    union all
+    select atualizada_em at time zone 'America/Sao_Paulo', 0, quantidade
+      from reserva where status = 'retirada' and atualizada_em >= v_ini and atualizada_em < v_fim
+  )
+  select ev.t::date, extract(hour from ev.t)::int, sum(ev.b)::int, sum(ev.r)::int
+    from ev group by 1, 2 order by 1, 2;
+end $$;
+
 -- PERMISSOES (RNF07)
 alter table produto  enable row level security;
 alter table fornada  enable row level security;
@@ -262,6 +319,10 @@ grant execute on function disponibilidade(smallint) to anon, authenticated;
 grant execute on function criar_reserva(text, text, int, boolean, smallint) to anon, authenticated;
 grant execute on function inscrever(text, text, boolean, smallint) to anon, authenticated;
 grant execute on function cancelar_inscricao(uuid) to anon, authenticated;
+grant execute on function relatorio_vendas(date, date) to authenticated;
+revoke execute on function reivindicar_aviso(smallint) from authenticated;
+grant execute on function reivindicar_aviso(smallint) to service_role;
+grant execute on function disponibilidade(smallint) to service_role;
 
 -- realtime (RNF04)
 do $$

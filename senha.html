@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Via Rápida Mercado · Senha</title>
+<link rel="icon" href="logo/favicon.ico" sizes="any">
+<link rel="icon" href="logo/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="logo/icone-180.png">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="loja">
+<main class="wrap login">
+  <span class="brand"><img src="logo/logo.png" alt="Via Rápida Mercado" width="140" height="36"><small>painel</small></span>
+
+  <!-- 1. pedir o link por e-mail -->
+  <form id="pedir" novalidate>
+    <div class="head"><h1>Esqueci a senha</h1><span class="small">Enviamos um link para você criar uma senha nova.</span></div>
+    <label for="email">E-mail<input id="email" type="email" autocomplete="username" required></label>
+    <button id="enviar" class="btn btn-primary btn-block" type="submit">Enviar link</button>
+  </form>
+
+  <!-- 2. criar a senha nova (aberto pelo link do e-mail) -->
+  <form id="trocar" novalidate hidden>
+    <div class="head"><h1>Nova senha</h1><span class="small">Use pelo menos 8 caracteres.</span></div>
+    <label for="senha">Nova senha<input id="senha" type="password" autocomplete="new-password" minlength="8" required></label>
+    <label for="senha2">Repita a senha<input id="senha2" type="password" autocomplete="new-password" minlength="8" required></label>
+    <button id="salvar" class="btn btn-primary btn-block" type="submit">Salvar senha</button>
+  </form>
+
+  <p id="erro" class="erro" role="alert" hidden></p>
+  <p id="ok" class="ok-msg" role="status" hidden></p>
+  <a class="small" href="login.html">Voltar para o login</a>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/db.js"></script>
+<script src="js/senha.js"></script>
+</body>
+</html>

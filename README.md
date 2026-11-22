@@ -19,6 +19,7 @@ cancelar.html               cancelamento do aviso (link do e-mail)
 reserva.html                reserva e código de retirada
 minha-reserva.html          cliente consulta, altera ou cancela a própria reserva
 login.html                  entrada da loja
+senha.html                  esqueci a senha: pede o link e cria a senha nova
 painel.html                 painel: situação, fornadas, vendas e próxima fornada
 reservas.html               reservas do dia
 relatorios.html             relatórios de vendas, gráficos, horários de pico e CSV
@@ -30,7 +31,7 @@ js/db.js                    conexão com o Supabase usada pelas páginas
 js/disponibilidade.js       leitura da situação e atualização em tempo real
 js/aviso.js, js/cancelar.js, js/reserva.js, js/minha-reserva.js
 js/auth.js                  sessão da loja (protege o painel)
-js/login.js, js/painel.js, js/reservas.js, js/relatorios.js, js/qrcode.js
+js/login.js, js/senha.js, js/painel.js, js/reservas.js, js/relatorios.js, js/qrcode.js
 supabase/schema.sql         script do banco: tabelas, regras, funções e permissões
 supabase/functions/avisar/  envio do aviso "tem pão" por e-mail (Edge Function)
 ```
@@ -44,6 +45,14 @@ supabase/functions/avisar/  envio do aviso "tem pão" por e-mail (Edge Function)
 5. Sirva a pasta com qualquer servidor estático, por exemplo `npx serve .` ou a extensão Live Server do VS Code, e abra `index.html`.
 
 Para entrar no painel (`login.html`), crie o usuário da loja em **Authentication > Users > Add user** (marque "Auto Confirm User").
+
+### Esqueci a senha
+
+1. Em **Authentication > URL Configuration**, coloque o endereço do site em **Site URL** e adicione em **Redirect URLs** o endereço de `senha.html`: `https://rtrgb.github.io/via-rapida-mercado/senha.html` (e `http://localhost:3000/senha.html` para testar localmente).
+2. O e-mail padrão do Supabase só envia para membros do projeto e poucas vezes por hora. Para a conta da loja, use o Brevo: em **Authentication > Emails > SMTP Settings**, ative o SMTP próprio com host `smtp-relay.brevo.com`, porta `587`, o login e a chave SMTP do Brevo (**Settings > SMTP & API > SMTP**) e o remetente verificado.
+3. Em **Authentication > Emails > Templates > Reset Password**, troque o texto para português. Assunto: `Via Rápida Mercado: criar senha nova`. Corpo: `<p>Para criar uma senha nova no painel, abra o link: <a href="{{ .ConfirmationURL }}">criar senha nova</a></p><p>Se não foi você, ignore este e-mail.</p>`
+
+O link vale uma vez e expira em 1 hora. Ao salvar a senha nova, a loja entra direto no painel.
 
 Para testar a página com pão disponível, insira uma fornada no **Table Editor** do Supabase (tabela `fornada`, `produto_id = 1`, `quantidade = 45`).
 
@@ -95,6 +104,7 @@ O front-end é publicado pelo GitHub Pages (Settings > Pages > Branch: `main`, p
 - [x] Painel explicado na tela e nova fornada com sobras separadas (feitos, sobra e descarte)
 - [x] Relatório de produção e descarte (tela e CSV)
 - [x] Logo da Via Rápida Mercado (cabeçalho, ícones, prévia do link e cartaz do QR Code)
+- [x] Esqueci a senha no login (link por e-mail e senha nova)
 - [ ] Apresentação para a dona (23 a 27/11/2026) e ajustes depois do feedback dela
 - [ ] Entrega final (02/12/2026)
 
@@ -106,5 +116,4 @@ O front-end é publicado pelo GitHub Pages (Settings > Pages > Branch: `main`, p
   - buscar reserva pelo código em "Reservas do dia";
   - botão "Confirmar que ainda tem pão" (evita o aviso de 2 h sem mandar outro e-mail);
   - erros do banco e de sessão expirada ainda em inglês;
-  - "Esqueci a senha" no login;
   - reservas da próxima fornada que somam mais do que a fornada tem.

@@ -7,7 +7,12 @@ window.VR_AUTH = {
     const quem = document.getElementById('quem');
     if (quem) quem.textContent = data.session.user.email;
     const sair = document.getElementById('sair');
-    if (sair) sair.onclick = async () => { await VR.db.auth.signOut(); location.replace('login.html'); };
+    let saindo = false;
+    if (sair) sair.onclick = async () => { saindo = true; await VR.db.auth.signOut(); location.replace('login.html'); };
+    // sessão expirou ou saiu em outra aba: volta ao login com aviso
+    VR.db.auth.onAuthStateChange((ev) => {
+      if (ev === 'SIGNED_OUT' && !saindo) location.replace('login.html?expirou=1');
+    });
     return data.session;
   },
   // acao opcional: { texto: 'Desfazer', fn } vira um botão no aviso

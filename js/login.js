@@ -6,6 +6,7 @@
 
   const { data } = await VR.db.auth.getSession();
   if (data.session) return location.replace('painel.html');
+  if (new URLSearchParams(location.search).has('expirou')) erro('Sua sessão expirou. Entre de novo.');
 
   $('form').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -25,7 +26,7 @@
     if (c === 'invalid_credentials' || /invalid login credentials/i.test(m)) return 'E-mail ou senha incorretos.';
     if (c === 'email_not_confirmed' || /not confirmed/i.test(m)) return 'Este e-mail ainda não foi confirmado.';
     if (e.status === 429 || /rate limit|too many/i.test(m)) return 'Muitas tentativas. Espere alguns minutos e tente de novo.';
-    if (!e.status || /fetch|network/i.test(m)) return VR.msg(); // sem conexão
+    if (!e.status || /fetch|network/i.test(m)) return VR.msg(e); // sem conexão
     return 'Não foi possível entrar agora. Tente de novo em instantes.';
   }
 })();

@@ -105,6 +105,7 @@ O front-end é publicado pelo GitHub Pages (Settings > Pages > Branch: `main`, p
 - [x] Relatório de produção e descarte (tela e CSV)
 - [x] Logo da Via Rápida Mercado (cabeçalho, ícones, prévia do link e cartaz do QR Code)
 - [x] Esqueci a senha no login (link por e-mail e senha nova)
+- [x] Todos os erros em português; sessão expirada volta ao login com aviso
 - [ ] Apresentação para a dona (23 a 27/11/2026) e ajustes depois do feedback dela
 - [ ] Entrega final (02/12/2026)
 
@@ -115,5 +116,4 @@ O front-end é publicado pelo GitHub Pages (Settings > Pages > Branch: `main`, p
   - esconder a "Próxima fornada" quando o horário já passou;
   - buscar reserva pelo código em "Reservas do dia";
   - botão "Confirmar que ainda tem pão" (evita o aviso de 2 h sem mandar outro e-mail);
-  - erros do banco e de sessão expirada ainda em inglês;
   - reservas da próxima fornada que somam mais do que a fornada tem.

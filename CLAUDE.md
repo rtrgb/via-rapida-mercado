@@ -31,13 +31,15 @@ Parceira: Via Rápida Mercado (Rua 1400, 429, Balneário Camboriú), dona Sra. A
 - RF07 aviso por e-mail: 1 envio por vez que o pão fica disponível, mínimo 30 min entre envios (`reivindicar_aviso`).
 - RF16 a RF19 relatórios: vendas = balcão + reservas retiradas (`relatorio_vendas`). RF21 QR Code. RF22 CSV.
 
-## Estado atual (21/11/2026)
-- Sistema completo e no ar. Feito nesta etapa: revisão de uso, "Minha reserva", ajustes visuais, sobras da fornada e relatório de produção.
+## Estado atual (22/11/2026)
+- Sistema completo e no ar. Feito por último: "Esqueci a senha" (`senha.html`, `js/senha.js`, SMTP do Brevo configurado no Supabase Auth) e todos os erros em português (`VR.msg` em `js/db.js`; sessão expirada volta ao login com `?expirou=1`).
 - Funções públicas: `disponibilidade`, `criar_reserva` (devolve código e prazo), `inscrever`, `cancelar_inscricao`, `minhas_reservas`, `alterar_reserva`, `cancelar_reserva` (estas três buscam pelo e-mail ou telefone, sem código, por decisão do autor).
 - Funções da loja: `nova_fornada` (separa feitos, `sobra` e `descarte`), `relatorio_vendas`, `relatorio_producao`.
 - Balcão = feitos + sobra - vendas - reservas aguardando/retiradas.
+- Erros das funções do banco usam `raise exception` (P0001) em português; `VR.msg` mostra esses como estão e traduz o resto.
+- Aviso só por e-mail: WhatsApp e SMS foram avaliados e recusados pelo autor (custo/complexidade).
 - Antes do push, rodar o `schema.sql` no Supabase quando ele mudar (o front usa as funções novas).
-- Próximos passos e ideias pendentes: seção "Próximos passos" do README.
+- Próximos passos: ideias para depois do feedback da dona, na seção "Próximos passos" do README.
 
 ## Identidade visual
 - Logo oficial na pasta `logo/`: `logo.png` (cabeçalho, painel, login e cartaz do QR Code, via `.brand img`), `favicon.ico`, `favicon-32.png`, `icone-180.png` e `compartilhar.jpg` (prévia do WhatsApp, 1200x630).

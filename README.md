@@ -117,3 +117,6 @@ O front-end é publicado pelo GitHub Pages (Settings > Pages > Branch: `main`, p
   - buscar reserva pelo código em "Reservas do dia";
   - botão "Confirmar que ainda tem pão" (evita o aviso de 2 h sem mandar outro e-mail);
   - reservas da próxima fornada que somam mais do que a fornada tem.
+- Avaliado e deixado de fora por enquanto:
+  - aviso pelo WhatsApp: a API oficial pede conta Meta Business, número próprio, modelos aprovados e custo por mensagem; as APIs não oficiais arriscam bloquear o número da loja;
+  - aviso por SMS: daria para mandar pelo Brevo, mas cobra créditos por mensagem. O aviso continua só por e-mail.
